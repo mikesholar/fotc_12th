@@ -4,7 +4,12 @@ Schedule tracker for 12th State CrossFit teams competing in
 [Fittest of the Coast](https://fittestofthecoast.com) — the Coastal Qualifier
 (Oct 1–28, 2026) and the Charleston Championship (Jan 15–17, 2027).
 
-**Live:** https://mikesholar.github.io/fotc_12th/
+**Live:** https://roadtocharleston.com
+
+Served from GitHub Pages on a custom apex domain. Because the site is served from
+the domain root rather than `/fotc_12th/`, `vite.config.ts` sets `base: "/"` and
+`public/CNAME` pins the domain so it survives redeploys. Changing either will
+break asset loading.
 
 ## Updating the schedule
 

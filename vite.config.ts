@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/fotc_12th/",
+  base: "/",
   test: {
     globals: true,
     environment: "jsdom",
