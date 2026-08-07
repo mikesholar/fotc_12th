@@ -1,0 +1,131 @@
+{
+  "gym": {
+    "name": "12th State CrossFit",
+    "location": "Summerville, SC"
+  },
+
+  "teams": [
+    {
+      "id": "hold-the-line",
+      "name": "Hold the Line",
+      "division": "Team M/F · Rx",
+      "color": "#FF5959",
+      "athletes": ["Jordan Reese", "Morgan Cade"]
+    },
+    {
+      "id": "salt-and-sand",
+      "name": "Salt & Sand",
+      "division": "Team F/F · Intermediate",
+      "color": "#27CFE6",
+      "athletes": ["Avery Bowen", "Sam Delaney"]
+    },
+    {
+      "id": "battery-brothers",
+      "name": "Battery Brothers",
+      "division": "Team M/M · Rx",
+      "color": "#FFC24B",
+      "athletes": ["Tyler Knox", "Devon Pryor"]
+    },
+    {
+      "id": "tide-and-timber",
+      "name": "Tide & Timber",
+      "division": "Team M/F · Scaled",
+      "color": "#8B7CF6",
+      "athletes": ["Riley Hart", "Emerson Vale"]
+    }
+  ],
+
+  "events": [
+    {
+      "id": "wod1-release",
+      "kind": "release",
+      "title": "Workout 1 released",
+      "start": "2026-10-01T19:00:00-04:00",
+      "phase": "qualifier",
+      "week": 1,
+      "teams": "all",
+      "location": "Online · FOTC YouTube",
+      "notes": "Qualifier opens. Announced on the FOTC live stream from the host gym."
+    },
+    {
+      "id": "wod1-due",
+      "kind": "due",
+      "title": "Workout 1 scores due",
+      "start": "2026-10-07T21:00:00-04:00",
+      "phase": "qualifier",
+      "week": 1,
+      "teams": "all",
+      "notes": "Submit on Competition Corner before the cutoff. Video required for top-tier divisions."
+    },
+    {
+      "id": "wod2-release",
+      "kind": "release",
+      "title": "Workout 2 released",
+      "start": "2026-10-08T19:00:00-04:00",
+      "phase": "qualifier",
+      "week": 2,
+      "teams": "all",
+      "location": "Online · FOTC YouTube"
+    },
+    {
+      "id": "wod2-due",
+      "kind": "due",
+      "title": "Workout 2 scores due",
+      "start": "2026-10-14T21:00:00-04:00",
+      "phase": "qualifier",
+      "week": 2,
+      "teams": "all"
+    },
+    {
+      "id": "wod34-release",
+      "kind": "release",
+      "title": "Workouts 3 & 4 released",
+      "start": "2026-10-15T19:00:00-04:00",
+      "phase": "qualifier",
+      "week": 3,
+      "teams": "all",
+      "location": "Online · FOTC YouTube",
+      "notes": "Assumed double-score week — FOTC has confirmed one week carries two workouts but has not said which. Update if they announce otherwise."
+    },
+    {
+      "id": "wod34-due",
+      "kind": "due",
+      "title": "Workouts 3 & 4 scores due",
+      "start": "2026-10-21T21:00:00-04:00",
+      "phase": "qualifier",
+      "week": 3,
+      "teams": "all"
+    },
+    {
+      "id": "wod5-release",
+      "kind": "release",
+      "title": "Workout 5 released",
+      "start": "2026-10-22T19:00:00-04:00",
+      "phase": "qualifier",
+      "week": 4,
+      "teams": "all",
+      "location": "Online · FOTC YouTube"
+    },
+    {
+      "id": "wod5-due",
+      "kind": "due",
+      "title": "Workout 5 scores due — qualifier closes",
+      "start": "2026-10-28T21:00:00-04:00",
+      "phase": "qualifier",
+      "week": 4,
+      "teams": "all",
+      "notes": "Final cutoff. Leaderboard locks and Championship invites go out after review."
+    },
+    {
+      "id": "championship",
+      "kind": "comp",
+      "title": "FOTC Championship — Charleston Convention Center",
+      "start": "2027-01-15T08:00:00-05:00",
+      "end": "2027-01-17T18:00:00-05:00",
+      "phase": "championship",
+      "teams": "all",
+      "location": "North Charleston, SC",
+      "notes": "Heat times, lane assignments and event order publish closer to the date. Add one event per team here once they do."
+    }
+  ]
+}
