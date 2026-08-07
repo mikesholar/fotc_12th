@@ -1,5 +1,7 @@
 import { formatDayLabel, formatEventTime } from "../domain/format-event-time";
-import type { ScheduleEvent, Team } from "../types/schedule";
+import type { Individual, ScheduleEvent, Team } from "../types/schedule";
+
+type Entrant = Pick<Team | Individual, "id" | "name" | "color">;
 
 const KIND_LABELS: Record<ScheduleEvent["kind"], string> = {
   release: "Workout drop",
@@ -10,38 +12,38 @@ const KIND_LABELS: Record<ScheduleEvent["kind"], string> = {
 
 type EventRowProps = {
   readonly event: ScheduleEvent;
-  readonly teams: readonly Team[];
+  readonly entrants: readonly Entrant[];
   readonly timeZone: string;
 };
 
 const AppliesTo = ({
   event,
-  teams,
+  entrants,
 }: {
   readonly event: ScheduleEvent;
-  readonly teams: readonly Team[];
+  readonly entrants: readonly Entrant[];
 }) => {
-  if (event.teams === "all") {
-    return <span className="pill pill--all">All {teams.length} teams</span>;
+  if (event.entrants === "all") {
+    return <span className="pill pill--all">Everyone</span>;
   }
 
-  const named = event.teams
-    .map((id) => teams.find((team) => team.id === id))
-    .filter((team): team is Team => team !== undefined);
+  const named = event.entrants
+    .map((id) => entrants.find((entrant) => entrant.id === id))
+    .filter((entrant): entrant is Entrant => entrant !== undefined);
 
   return (
     <>
-      {named.map((team) => (
-        <span className="pill" key={team.id}>
-          <i style={{ background: team.color }} />
-          {team.name}
+      {named.map((entrant) => (
+        <span className="pill" key={entrant.id}>
+          <i style={{ background: entrant.color }} />
+          {entrant.name}
         </span>
       ))}
     </>
   );
 };
 
-export const EventRow = ({ event, teams, timeZone }: EventRowProps) => {
+export const EventRow = ({ event, entrants, timeZone }: EventRowProps) => {
   const day = formatDayLabel(event.start, timeZone);
   const { et, local } = formatEventTime(event.start, timeZone);
 
@@ -74,7 +76,7 @@ export const EventRow = ({ event, teams, timeZone }: EventRowProps) => {
 
       <div className="row__side">
         <span className="row__who">Applies to</span>
-        <AppliesTo event={event} teams={teams} />
+        <AppliesTo event={event} entrants={entrants} />
       </div>
     </article>
   );

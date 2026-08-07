@@ -7,9 +7,18 @@ export type Phase = (typeof PHASES)[number];
 export type Team = {
   readonly id: string;
   readonly name: string;
-  readonly division: string;
+  readonly division?: string;
   readonly color: string;
   readonly athletes: readonly string[];
+  readonly note?: string;
+};
+
+export type Individual = {
+  readonly id: string;
+  readonly name: string;
+  readonly division?: string;
+  readonly color: string;
+  readonly note?: string;
 };
 
 export type ScheduleEvent = {
@@ -20,7 +29,7 @@ export type ScheduleEvent = {
   readonly end?: string;
   readonly phase: Phase;
   readonly week?: number;
-  readonly teams: "all" | readonly string[];
+  readonly entrants: "all" | readonly string[];
   readonly location?: string;
   readonly notes?: string;
   readonly link?: string;
@@ -34,6 +43,7 @@ export type Gym = {
 export type Schedule = {
   readonly gym: Gym;
   readonly teams: readonly Team[];
+  readonly individuals: readonly Individual[];
   readonly events: readonly ScheduleEvent[];
 };
 

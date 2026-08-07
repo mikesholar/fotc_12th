@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { loadSchedule } from "./data/load-schedule";
-import { ALL_TEAMS, filterEventsByTeam } from "./domain/filter-events";
+import { ALL_ENTRANTS, filterEventsByEntrant } from "./domain/filter-events";
 import { resolveViewerTimeZone } from "./domain/format-event-time";
 import { findNextEvent } from "./domain/next-event";
 import { ErrorCard } from "./components/ErrorCard";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { NextUpCard } from "./components/NextUpCard";
+import { Roster } from "./components/Roster";
 import { ScheduleBoard } from "./components/ScheduleBoard";
-import { TeamFilter } from "./components/TeamFilter";
-import { TeamGrid } from "./components/TeamGrid";
+import { EntrantFilter } from "./components/EntrantFilter";
 import type { Schedule } from "./types/schedule";
 
 const TICK_MS = 30_000;
@@ -21,7 +21,7 @@ type LoadState =
 
 const App = () => {
   const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [selectedTeam, setSelectedTeam] = useState<string>(ALL_TEAMS);
+  const [selectedEntrant, setSelectedEntrant] = useState<string>(ALL_ENTRANTS);
   const [now, setNow] = useState<Date>(() => new Date());
   const timeZone = resolveViewerTimeZone();
 
@@ -58,7 +58,13 @@ const App = () => {
         {state.status === "error" && <ErrorCard errors={state.errors} />}
 
         {state.status === "ready" && (
-          <ScheduleView schedule={state.schedule} selectedTeam={selectedTeam} onSelectTeam={setSelectedTeam} now={now} timeZone={timeZone} />
+          <ScheduleView
+            schedule={state.schedule}
+            selectedEntrant={selectedEntrant}
+            onSelectEntrant={setSelectedEntrant}
+            now={now}
+            timeZone={timeZone}
+          />
         )}
       </main>
 
@@ -77,32 +83,38 @@ const App = () => {
 
 type ScheduleViewProps = {
   readonly schedule: Schedule;
-  readonly selectedTeam: string;
-  readonly onSelectTeam: (teamId: string) => void;
+  readonly selectedEntrant: string;
+  readonly onSelectEntrant: (entrantId: string) => void;
   readonly now: Date;
   readonly timeZone: string;
 };
 
 const ScheduleView = ({
   schedule,
-  selectedTeam,
-  onSelectTeam,
+  selectedEntrant,
+  onSelectEntrant,
   now,
   timeZone,
 }: ScheduleViewProps) => {
-  const visibleEvents = filterEventsByTeam(schedule.events, selectedTeam);
+  const entrants = [...schedule.teams, ...schedule.individuals];
+  const visibleEvents = filterEventsByEntrant(schedule.events, selectedEntrant);
   const nextEvent = findNextEvent(visibleEvents, now);
 
   return (
     <>
       <Hero schedule={schedule} />
-      <TeamFilter teams={schedule.teams} selected={selectedTeam} onSelect={onSelectTeam} />
+      <EntrantFilter
+        teams={schedule.teams}
+        individuals={schedule.individuals}
+        selected={selectedEntrant}
+        onSelect={onSelectEntrant}
+      />
       <div className="wrap">
         {nextEvent && <NextUpCard event={nextEvent} now={now} timeZone={timeZone} />}
       </div>
       <div className="wrap">
-        <ScheduleBoard events={visibleEvents} teams={schedule.teams} timeZone={timeZone} />
-        <TeamGrid teams={schedule.teams} />
+        <ScheduleBoard events={visibleEvents} entrants={entrants} timeZone={timeZone} />
+        <Roster teams={schedule.teams} individuals={schedule.individuals} />
       </div>
     </>
   );

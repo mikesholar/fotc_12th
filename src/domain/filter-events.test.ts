@@ -1,34 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { filterEventsByTeam } from "./filter-events";
+import { filterEventsByEntrant } from "./filter-events";
 import { getMockEvent } from "../test/factories";
 
 const events = [
-  getMockEvent({ id: "everyone", teams: "all" }),
-  getMockEvent({ id: "ours", teams: ["hold-the-line"] }),
-  getMockEvent({ id: "theirs", teams: ["salt-and-sand"] }),
+  getMockEvent({ id: "everyone", entrants: "all" }),
+  getMockEvent({ id: "ours", entrants: ["hold-the-line"] }),
+  getMockEvent({ id: "theirs", entrants: ["salt-and-sand"] }),
+  getMockEvent({ id: "solo", entrants: ["indy-jamie-fox"] }),
 ];
 
-describe("Filtering the schedule by team", () => {
-  it("shows every event when no team is selected", () => {
-    const visible = filterEventsByTeam(events, "all");
+describe("Filtering the schedule by entrant", () => {
+  it("shows every event when nothing is selected", () => {
+    const visible = filterEventsByEntrant(events, "all");
 
-    expect(visible.map((e) => e.id)).toEqual(["everyone", "ours", "theirs"]);
+    expect(visible.map((e) => e.id)).toEqual(["everyone", "ours", "theirs", "solo"]);
   });
 
   it("shows gym-wide events alongside the selected team's own events", () => {
-    const visible = filterEventsByTeam(events, "hold-the-line");
+    const visible = filterEventsByEntrant(events, "hold-the-line");
 
     expect(visible.map((e) => e.id)).toEqual(["everyone", "ours"]);
   });
 
-  it("hides events belonging only to other teams", () => {
-    const visible = filterEventsByTeam(events, "hold-the-line");
+  it("hides events belonging only to other entrants", () => {
+    const visible = filterEventsByEntrant(events, "hold-the-line");
 
     expect(visible.map((e) => e.id)).not.toContain("theirs");
   });
 
-  it("still shows gym-wide events for a team with no events of its own", () => {
-    const visible = filterEventsByTeam(events, "tide-and-timber");
+  it("filters to an individual competitor the same way as a team", () => {
+    const visible = filterEventsByEntrant(events, "indy-jamie-fox");
+
+    expect(visible.map((e) => e.id)).toEqual(["everyone", "solo"]);
+  });
+
+  it("still shows gym-wide events for an entrant with nothing of their own", () => {
+    const visible = filterEventsByEntrant(events, "tide-and-timber");
 
     expect(visible.map((e) => e.id)).toEqual(["everyone"]);
   });

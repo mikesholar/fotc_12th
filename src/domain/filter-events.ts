@@ -1,13 +1,13 @@
 import type { ScheduleEvent } from "../types/schedule";
 
-export const ALL_TEAMS = "all";
+export const ALL_ENTRANTS = "all";
 
-export const filterEventsByTeam = (
+export const filterEventsByEntrant = (
   events: readonly ScheduleEvent[],
-  teamId: string,
+  entrantId: string,
 ): readonly ScheduleEvent[] => {
-  if (teamId === ALL_TEAMS) return events;
+  if (entrantId === ALL_ENTRANTS) return events;
   return events.filter(
-    (event) => event.teams === ALL_TEAMS || event.teams.includes(teamId),
+    (event) => event.entrants === ALL_ENTRANTS || event.entrants.includes(entrantId),
   );
 };

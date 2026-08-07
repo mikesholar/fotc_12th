@@ -6,32 +6,148 @@
 
   "teams": [
     {
-      "id": "hold-the-line",
-      "name": "Hold the Line",
-      "division": "Team M/F · Rx",
+      "id": "quarterly-gains",
+      "name": "Quarterly Gains",
       "color": "#FF5959",
-      "athletes": ["Jordan Reese", "Morgan Cade"]
+      "athletes": ["Mike Sholar", "Caroline Ortiz"]
     },
     {
-      "id": "salt-and-sand",
-      "name": "Salt & Sand",
-      "division": "Team F/F · Intermediate",
+      "id": "chalk-dirty",
+      "name": "Chalk Dirty",
+      "division": "Coed Age Group 55+",
       "color": "#27CFE6",
-      "athletes": ["Avery Bowen", "Sam Delaney"]
+      "athletes": ["Kirk Williams", "Brenda Mullaney"]
     },
     {
-      "id": "battery-brothers",
-      "name": "Battery Brothers",
-      "division": "Team M/M · Rx",
+      "id": "team-meatball-and-mussels",
+      "name": "Team Meatball and Mussels",
       "color": "#FFC24B",
-      "athletes": ["Tyler Knox", "Devon Pryor"]
+      "athletes": ["Alicia Streger", "Keith Streger"]
     },
     {
-      "id": "tide-and-timber",
-      "name": "Tide & Timber",
-      "division": "Team M/F · Scaled",
+      "id": "area-51",
+      "name": "Area 51",
       "color": "#8B7CF6",
-      "athletes": ["Riley Hart", "Emerson Vale"]
+      "athletes": ["Kyle Takayama", "Michelle Vancza"]
+    },
+    {
+      "id": "overhead-optional",
+      "name": "Overhead Optional, Outfit Mandatory",
+      "color": "#4ADE80",
+      "athletes": ["Lauren Lisko", "Brandon Wiggs"]
+    },
+    {
+      "id": "shes-stronger-than-i-am",
+      "name": "She's Stronger Than I Am",
+      "color": "#F472B6",
+      "athletes": ["Lloyd White", "Ellen Postletwait"]
+    },
+    {
+      "id": "benji-caleb",
+      "name": "Benji / Caleb",
+      "division": "Male Rx",
+      "color": "#38BDF8",
+      "athletes": ["Benji McRoberts", "Caleb"],
+      "note": "Caleb's surname still to confirm."
+    },
+    {
+      "id": "kelly-q",
+      "name": "Kelly / Q",
+      "color": "#FB923C",
+      "athletes": ["Kelly Hicks", "Q Howard"]
+    },
+    {
+      "id": "maddie-shanna",
+      "name": "Maddie / Shanna",
+      "color": "#A3E635",
+      "athletes": ["Maddie Rinehart", "Shanna Schroeder"]
+    },
+    {
+      "id": "ashley-carolyn",
+      "name": "Ashley / Carolyn",
+      "division": "Novice",
+      "color": "#2DD4BF",
+      "athletes": ["Ashley", "Carolyn Namde"],
+      "note": "Ashley's surname still to confirm."
+    },
+    {
+      "id": "emily-kyle",
+      "name": "Emily / Kyle",
+      "color": "#E879F9",
+      "athletes": ["Emily Moise", "Kyle Fiala"]
+    },
+    {
+      "id": "team-tbd-emily-banks",
+      "name": "Team TBD",
+      "division": "Intermediate",
+      "color": "#FCD34D",
+      "athletes": ["Emily Banks"],
+      "note": "Looking for a teammate."
+    }
+  ],
+
+  "individuals": [
+    {
+      "id": "indy-michael-hubbard",
+      "name": "Michael Hubbard",
+      "division": "Age Group 50–54",
+      "color": "#FF5959"
+    },
+    {
+      "id": "indy-benji-mcroberts",
+      "name": "Benji McRoberts",
+      "color": "#38BDF8",
+      "note": "Also competing on Benji / Caleb."
+    },
+    {
+      "id": "indy-jen-edwards",
+      "name": "Jen Edwards",
+      "division": "Novice",
+      "color": "#4ADE80",
+      "note": "Interested in a team as well."
+    },
+    {
+      "id": "indy-brenda-mullaney",
+      "name": "Brenda Mullaney",
+      "color": "#27CFE6",
+      "note": "Also competing on Chalk Dirty."
+    },
+    {
+      "id": "indy-emeric-harney",
+      "name": "Emeric Harney",
+      "division": "Intermediate",
+      "color": "#8B7CF6"
+    },
+    {
+      "id": "indy-alex-rabke",
+      "name": "Alex Rabke",
+      "color": "#FB923C",
+      "note": "Intermediate or Age Group 35–39 — undecided."
+    },
+    {
+      "id": "indy-emily-banks",
+      "name": "Emily Banks",
+      "division": "Intermediate",
+      "color": "#FCD34D",
+      "note": "Also seeking a team."
+    },
+    {
+      "id": "indy-justin-ray",
+      "name": "Justin Ray",
+      "color": "#F472B6",
+      "note": "Interested in a team as well."
+    },
+    {
+      "id": "indy-somi-kammer",
+      "name": "Somi Kammer",
+      "division": "Teen",
+      "color": "#A3E635"
+    },
+    {
+      "id": "indy-jeremy-schmidt",
+      "name": "Jeremy Schmidt",
+      "color": "#2DD4BF",
+      "note": "Team or individual still to confirm."
     }
   ],
 
@@ -43,7 +159,7 @@
       "start": "2026-10-01T19:00:00-04:00",
       "phase": "qualifier",
       "week": 1,
-      "teams": "all",
+      "entrants": "all",
       "location": "Online · FOTC YouTube",
       "notes": "Qualifier opens. Announced on the FOTC live stream from the host gym."
     },
@@ -54,7 +170,7 @@
       "start": "2026-10-07T21:00:00-04:00",
       "phase": "qualifier",
       "week": 1,
-      "teams": "all",
+      "entrants": "all",
       "notes": "Submit on Competition Corner before the cutoff. Video required for top-tier divisions."
     },
     {
@@ -64,7 +180,7 @@
       "start": "2026-10-08T19:00:00-04:00",
       "phase": "qualifier",
       "week": 2,
-      "teams": "all",
+      "entrants": "all",
       "location": "Online · FOTC YouTube"
     },
     {
@@ -74,7 +190,7 @@
       "start": "2026-10-14T21:00:00-04:00",
       "phase": "qualifier",
       "week": 2,
-      "teams": "all"
+      "entrants": "all"
     },
     {
       "id": "wod34-release",
@@ -83,7 +199,7 @@
       "start": "2026-10-15T19:00:00-04:00",
       "phase": "qualifier",
       "week": 3,
-      "teams": "all",
+      "entrants": "all",
       "location": "Online · FOTC YouTube",
       "notes": "Assumed double-score week — FOTC has confirmed one week carries two workouts but has not said which. Update if they announce otherwise."
     },
@@ -94,7 +210,7 @@
       "start": "2026-10-21T21:00:00-04:00",
       "phase": "qualifier",
       "week": 3,
-      "teams": "all"
+      "entrants": "all"
     },
     {
       "id": "wod5-release",
@@ -103,7 +219,7 @@
       "start": "2026-10-22T19:00:00-04:00",
       "phase": "qualifier",
       "week": 4,
-      "teams": "all",
+      "entrants": "all",
       "location": "Online · FOTC YouTube"
     },
     {
@@ -113,7 +229,7 @@
       "start": "2026-10-28T21:00:00-04:00",
       "phase": "qualifier",
       "week": 4,
-      "teams": "all",
+      "entrants": "all",
       "notes": "Final cutoff. Leaderboard locks and Championship invites go out after review."
     },
     {
@@ -123,9 +239,9 @@
       "start": "2027-01-15T08:00:00-05:00",
       "end": "2027-01-17T18:00:00-05:00",
       "phase": "championship",
-      "teams": "all",
+      "entrants": "all",
       "location": "North Charleston, SC",
-      "notes": "Heat times, lane assignments and event order publish closer to the date. Add one event per team here once they do."
+      "notes": "Heat times, lane assignments and event order publish closer to the date. Add one event per entrant here once they do."
     }
   ]
 }

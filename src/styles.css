@@ -407,6 +407,19 @@ code {
   border-bottom: 1px solid var(--line-soft);
   padding: 12px 0;
 }
+.filters .wrap {
+  position: relative;
+}
+.filters .wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 46px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(10, 12, 13, 0), rgba(10, 12, 13, 0.95));
+}
 .chips {
   display: flex;
   gap: 8px;
@@ -429,10 +442,6 @@ code {
   flex: none;
 }
 @media (min-width: 700px) {
-  .chips {
-    flex-wrap: wrap;
-    overflow: visible;
-  }
   .chips__label {
     display: block;
   }
@@ -835,13 +844,59 @@ code {
   width: 3px;
   background: var(--tc, var(--coral));
 }
-.teamcard__div {
+.entrant__div {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.17em;
   text-transform: uppercase;
   color: var(--tc, var(--coral));
   margin-bottom: 10px;
+}
+.entrant__div--tbd {
+  color: var(--muted);
+}
+.entrant__note {
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+.roster__label {
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.roster__label--spaced {
+  margin-top: 44px;
+}
+.teamgrid--tight {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 620px) {
+  .teamgrid--tight {
+    grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+  }
+}
+.teamcard--solo h4 {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+.av--inline {
+  text-transform: none;
+}
+.chips__divider {
+  width: 1px;
+  height: 22px;
+  background: var(--line);
+  flex: none;
+  margin: 0 4px;
 }
 .teamcard h4 {
   font-size: 19px;

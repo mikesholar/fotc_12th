@@ -2,11 +2,14 @@ import { phaseRange } from "../domain/phase-range";
 import type { Schedule } from "../types/schedule";
 
 export const Hero = ({ schedule }: { readonly schedule: Schedule }) => {
-  const athleteCount = schedule.teams.reduce((sum, team) => sum + team.athletes.length, 0);
+  const athleteCount =
+    schedule.teams.reduce((sum, team) => sum + team.athletes.length, 0) +
+    schedule.individuals.length;
 
   const stats = [
     { value: String(schedule.teams.length), label: "Teams" },
-    { value: String(athleteCount), label: "Athletes" },
+    { value: String(schedule.individuals.length), label: "Individuals" },
+    { value: String(athleteCount), label: "Entries" },
     { value: phaseRange(schedule.events, "qualifier"), label: "Qualifier" },
     { value: phaseRange(schedule.events, "championship"), label: "Championship" },
   ].filter((stat): stat is { value: string; label: string } => Boolean(stat.value));

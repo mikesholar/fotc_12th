@@ -4,6 +4,7 @@ import {
   type EventKind,
   type Phase,
   type Result,
+  type Individual,
   type Schedule,
   type ScheduleEvent,
   type Team,
@@ -71,19 +72,35 @@ const readTeam = (raw: unknown, index: number, errors: string[]): Team => {
   return {
     id: readString(raw, "id", where, errors),
     name: readString(raw, "name", where, errors),
-    division: readString(raw, "division", where, errors),
+    division: readOptionalString(raw, "division", where, errors),
     color: readString(raw, "color", where, errors),
     athletes,
+    note: readOptionalString(raw, "note", where, errors),
   };
 };
 
-const readEventTeams = (raw: Unknown, where: string, errors: string[]): "all" | string[] => {
-  const value = raw["teams"];
+const readIndividual = (raw: unknown, index: number, errors: string[]): Individual => {
+  const where = `individuals[${index}]`;
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return { id: "", name: "", color: "" };
+  }
+  return {
+    id: readString(raw, "id", where, errors),
+    name: readString(raw, "name", where, errors),
+    division: readOptionalString(raw, "division", where, errors),
+    color: readString(raw, "color", where, errors),
+    note: readOptionalString(raw, "note", where, errors),
+  };
+};
+
+const readEventEntrants = (raw: Unknown, where: string, errors: string[]): "all" | string[] => {
+  const value = raw["entrants"];
   if (value === "all") return "all";
   if (Array.isArray(value) && value.every((v) => typeof v === "string")) {
     return value as string[];
   }
-  errors.push(`${where}: "teams" must be "all" or an array of team ids`);
+  errors.push(`${where}: "entrants" must be "all" or an array of team or individual ids`);
   return [];
 };
 
@@ -97,7 +114,7 @@ const readEvent = (raw: unknown, index: number, errors: string[]): ScheduleEvent
       title: "",
       start: "",
       phase: "qualifier",
-      teams: [],
+      entrants: [],
     };
   }
 
@@ -131,7 +148,7 @@ const readEvent = (raw: unknown, index: number, errors: string[]): ScheduleEvent
     end,
     phase: readEnum<Phase>(raw, "phase", PHASES, where, errors),
     week,
-    teams: readEventTeams(raw, where, errors),
+    entrants: readEventEntrants(raw, where, errors),
     location: readOptionalString(raw, "location", where, errors),
     notes: readOptionalString(raw, "notes", where, errors),
     link: readOptionalString(raw, "link", where, errors),
@@ -160,22 +177,45 @@ export const validateSchedule = (raw: unknown): Result<Schedule> => {
     ? teamsRaw.map((team, i) => readTeam(team, i, errors))
     : [];
 
+  const individualsRaw = raw["individuals"];
+  if (individualsRaw !== undefined && !Array.isArray(individualsRaw)) {
+    errors.push("individuals: must be an array when present");
+  }
+  const individuals = Array.isArray(individualsRaw)
+    ? individualsRaw.map((individual, i) => readIndividual(individual, i, errors))
+    : [];
+
   const eventsRaw = raw["events"];
   if (!Array.isArray(eventsRaw)) errors.push('events: must be an array');
   const events = Array.isArray(eventsRaw)
     ? eventsRaw.map((event, i) => readEvent(event, i, errors))
     : [];
 
-  const knownTeamIds = new Set(teams.map((team) => team.id));
+  const allIds = [...teams, ...individuals].map((entrant) => entrant.id).filter((id) => id !== "");
+  const seenIds = new Set<string>();
+  allIds
+    .filter((id) => {
+      if (seenIds.has(id)) return true;
+      seenIds.add(id);
+      return false;
+    })
+    .forEach((id) =>
+      errors.push(
+        `duplicate id "${id}" — every team and individual needs a unique id, or events cannot tell them apart`,
+      ),
+    );
+
   events.forEach((event, index) => {
-    if (event.teams === "all") return;
-    event.teams
-      .filter((id) => !knownTeamIds.has(id))
+    if (event.entrants === "all") return;
+    event.entrants
+      .filter((id) => !seenIds.has(id))
       .forEach((id) =>
-        errors.push(`events[${index}]: unknown team id "${id}" — no team in "teams" has that id`),
+        errors.push(
+          `events[${index}]: unknown entrant id "${id}" — no team or individual has that id`,
+        ),
       );
   });
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, value: { gym, teams, events } };
+  return { ok: true, value: { gym, teams, individuals, events } };
 };

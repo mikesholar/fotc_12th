@@ -18,14 +18,14 @@ const defaultEvents = [
     id: "wod1-release",
     title: "Workout 1 released",
     start: "2026-10-01T19:00:00-04:00",
-    teams: "all",
+    entrants: "all",
   }),
   getMockRawEvent({
     id: "wod1-due",
     kind: "due",
     title: "Workout 1 scores due",
     start: "2026-10-07T21:00:00-04:00",
-    teams: "all",
+    entrants: "all",
   }),
   getMockRawEvent({
     id: "hold-only",
@@ -33,7 +33,7 @@ const defaultEvents = [
     title: "Hold the Line heat one",
     start: "2027-01-15T09:00:00-05:00",
     phase: "championship",
-    teams: ["hold-the-line"],
+    entrants: ["hold-the-line"],
   }),
   getMockRawEvent({
     id: "salt-only",
@@ -41,7 +41,7 @@ const defaultEvents = [
     title: "Salt and Sand heat one",
     start: "2027-01-15T11:00:00-05:00",
     phase: "championship",
-    teams: ["salt-and-sand"],
+    entrants: ["salt-and-sand"],
   }),
 ];
 
@@ -49,7 +49,7 @@ const scheduleOf = (events = defaultEvents): Record<string, unknown> =>
   getMockRawSchedule({ events });
 
 const board = (): HTMLElement => screen.getByRole("region", { name: /^schedule$/i });
-const roster = (): HTMLElement => screen.getByRole("region", { name: /our teams/i });
+const roster = (): HTMLElement => screen.getByRole("region", { name: /who's competing/i });
 
 const renderApp = async (): Promise<void> => {
   render(<App />);
@@ -131,8 +131,61 @@ describe("Road to Charleston", () => {
     expect(within(roster()).getByText("Jordan Reese")).toBeInTheDocument();
   });
 
+  it("lists individual competitors as well as teams", async () => {
+    serve(scheduleOf());
+
+    await renderApp();
+
+    await waitFor(() => expect(within(roster()).getByText("Jamie Fox")).toBeInTheDocument());
+  });
+
+  it("filters the schedule down to an individual competitor", async () => {
+    serve(
+      scheduleOf([
+        ...defaultEvents,
+        getMockRawEvent({
+          id: "solo-heat",
+          kind: "comp",
+          title: "Jamie Fox heat one",
+          start: "2027-01-16T09:00:00-05:00",
+          phase: "championship",
+          entrants: ["indy-jamie-fox"],
+        }),
+      ]),
+    );
+    await renderApp();
+    await waitFor(() => expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole("button", { name: /jamie fox/i }));
+
+    expect(within(board()).getByText("Jamie Fox heat one")).toBeInTheDocument();
+    expect(within(board()).queryByText("Hold the Line heat one")).not.toBeInTheDocument();
+  });
+
+  it("says a division is undecided rather than leaving it blank", async () => {
+    serve(
+      getMockRawSchedule({
+        teams: [
+          {
+            id: "no-division",
+            name: "Quarterly Gains",
+            color: "#FF5959",
+            athletes: ["Mike Sholar", "Caroline Ortiz"],
+          },
+        ],
+        individuals: [],
+        events: [],
+      }),
+    );
+
+    await renderApp();
+
+    await waitFor(() => expect(within(roster()).getByText("Quarterly Gains")).toBeInTheDocument());
+    expect(within(roster()).getByText(/division tbd/i)).toBeInTheDocument();
+  });
+
   it("explains what is wrong instead of rendering a blank page", async () => {
-    serve(getMockRawSchedule({ events: [getMockRawEvent({ teams: ["ghost-team"] })] }));
+    serve(getMockRawSchedule({ events: [getMockRawEvent({ entrants: ["ghost-team"] })] }));
 
     await renderApp();
 

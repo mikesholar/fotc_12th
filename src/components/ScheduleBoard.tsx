@@ -1,14 +1,17 @@
 import { groupEventsByMonth } from "../domain/group-events";
-import type { ScheduleEvent, Team } from "../types/schedule";
+import type { Individual, ScheduleEvent, Team } from "../types/schedule";
+
 import { EventRow } from "./EventRow";
+
+type Entrant = Pick<Team | Individual, "id" | "name" | "color">;
 
 type ScheduleBoardProps = {
   readonly events: readonly ScheduleEvent[];
-  readonly teams: readonly Team[];
+  readonly entrants: readonly Entrant[];
   readonly timeZone: string;
 };
 
-export const ScheduleBoard = ({ events, teams, timeZone }: ScheduleBoardProps) => {
+export const ScheduleBoard = ({ events, entrants, timeZone }: ScheduleBoardProps) => {
   const groups = groupEventsByMonth(events);
 
   return (
@@ -32,7 +35,7 @@ export const ScheduleBoard = ({ events, teams, timeZone }: ScheduleBoardProps) =
             </span>
           </div>
           {group.events.map((event) => (
-            <EventRow key={event.id} event={event} teams={teams} timeZone={timeZone} />
+            <EventRow key={event.id} event={event} entrants={entrants} timeZone={timeZone} />
           ))}
         </div>
       ))}
