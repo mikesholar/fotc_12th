@@ -35,6 +35,12 @@ export type ScheduleEvent = {
   readonly link?: string;
 };
 
+export type QuickLink = {
+  readonly label: string;
+  readonly url: string;
+  readonly note?: string;
+};
+
 export type Gym = {
   readonly name: string;
   readonly location: string;
@@ -42,6 +48,7 @@ export type Gym = {
 
 export type Schedule = {
   readonly gym: Gym;
+  readonly links: readonly QuickLink[];
   readonly teams: readonly Team[];
   readonly individuals: readonly Individual[];
   readonly events: readonly ScheduleEvent[];

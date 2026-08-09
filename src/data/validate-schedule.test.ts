@@ -127,6 +127,48 @@ describe("Schedule validation", () => {
     expect(result.errors.join(" ")).toContain("title");
   });
 
+  it("reads the quick links shown at the top of the page", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({
+        links: [
+          { label: "Rulebook", url: "https://example.com/rulebook.pdf" },
+          { label: "Leaderboard", url: "https://example.com/results", note: "soon" },
+        ],
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.links).toHaveLength(2);
+    expect(result.value.links[1]?.note).toBe("soon");
+  });
+
+  it("treats a schedule with no links as valid", () => {
+    const result = validateSchedule(getMockRawSchedule({ links: undefined }));
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.links).toEqual([]);
+  });
+
+  it("rejects a link that is not a real URL", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({ links: [{ label: "Rulebook", url: "rulebook.pdf" }] }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.join(" ")).toContain("url");
+  });
+
+  it("rejects a link with no label", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({ links: [{ url: "https://example.com" }] }),
+    );
+
+    expect(result.ok).toBe(false);
+  });
+
   it("rejects a payload that is not an object", () => {
     const result = validateSchedule("not a schedule");
 

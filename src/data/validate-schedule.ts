@@ -5,6 +5,7 @@ import {
   type Phase,
   type Result,
   type Individual,
+  type QuickLink,
   type Schedule,
   type ScheduleEvent,
   type Team,
@@ -94,6 +95,34 @@ const readIndividual = (raw: unknown, index: number, errors: string[]): Individu
   };
 };
 
+const isAbsoluteUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const readLink = (raw: unknown, index: number, errors: string[]): QuickLink => {
+  const where = `links[${index}]`;
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return { label: "", url: "" };
+  }
+
+  const url = readString(raw, "url", where, errors);
+  if (url !== "" && !isAbsoluteUrl(url)) {
+    errors.push(`${where}: "url" must be a full address starting with https://`);
+  }
+
+  return {
+    label: readString(raw, "label", where, errors),
+    url,
+    note: readOptionalString(raw, "note", where, errors),
+  };
+};
+
 const readEventEntrants = (raw: Unknown, where: string, errors: string[]): "all" | string[] => {
   const value = raw["entrants"];
   if (value === "all") return "all";
@@ -177,6 +206,14 @@ export const validateSchedule = (raw: unknown): Result<Schedule> => {
     ? teamsRaw.map((team, i) => readTeam(team, i, errors))
     : [];
 
+  const linksRaw = raw["links"];
+  if (linksRaw !== undefined && !Array.isArray(linksRaw)) {
+    errors.push("links: must be an array when present");
+  }
+  const links = Array.isArray(linksRaw)
+    ? linksRaw.map((link, i) => readLink(link, i, errors))
+    : [];
+
   const individualsRaw = raw["individuals"];
   if (individualsRaw !== undefined && !Array.isArray(individualsRaw)) {
     errors.push("individuals: must be an array when present");
@@ -217,5 +254,5 @@ export const validateSchedule = (raw: unknown): Result<Schedule> => {
   });
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, value: { gym, teams, individuals, events } };
+  return { ok: true, value: { gym, links, teams, individuals, events } };
 };

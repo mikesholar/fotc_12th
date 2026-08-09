@@ -8,6 +8,7 @@ import { ErrorCard } from "./components/ErrorCard";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { NextUpCard } from "./components/NextUpCard";
+import { QuickLinks } from "./components/QuickLinks";
 import { Roster } from "./components/Roster";
 import { ScheduleBoard } from "./components/ScheduleBoard";
 import { EntrantFilter } from "./components/EntrantFilter";
@@ -48,6 +49,7 @@ const App = () => {
 
   return (
     <>
+      {state.status === "ready" && <QuickLinks links={state.schedule.links} />}
       <Header />
       <main>
         {state.status === "loading" && (

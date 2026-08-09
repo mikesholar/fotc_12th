@@ -80,6 +80,26 @@ The page shows a red card listing exactly what's wrong and which field it's in,
 rather than going blank. Unknown entrant ids, duplicate ids, unparseable dates and
 end-before-start are all caught.
 
+## The top link bar
+
+The slim bar above the header comes from the `links` array in `schedule.json`:
+
+```json
+"links": [
+  { "label": "Rulebook", "url": "https://fittestofthecoast.com/.../Rulebook.pdf" },
+  { "label": "Leaderboard", "url": "https://competitioncorner.net/ff/19273/results",
+    "note": "soon" }
+]
+```
+
+`note` is optional and renders as a small cyan tag — use it to flag a link that is not
+live yet, and delete it once the link works.
+
+**The rulebook URL is version-stamped** (`..._7.27.2026.pdf`), so it will break when FOTC
+reissues the rulebook. Grab the new address from
+<https://fittestofthecoast.com/coastal-qualifier/> and paste it in. Remove the whole
+`links` array and the bar disappears.
+
 ## The filter
 
 The chip row filters by **division** or by **entry type** (Teams / Individuals), not by

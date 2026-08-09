@@ -67,6 +67,51 @@ afterEach(() => {
 });
 
 describe("Road to Charleston", () => {
+  it("puts the competition's own links at the very top", async () => {
+    serve(
+      getMockRawSchedule({
+        links: [
+          { label: "Rulebook", url: "https://fittestofthecoast.com/rulebook.pdf" },
+          { label: "Leaderboard", url: "https://competitioncorner.net/ff/19273/results" },
+        ],
+      }),
+    );
+
+    await renderApp();
+
+    const quickLinks = await screen.findByRole("navigation", { name: /competition links/i });
+    const rulebook = within(quickLinks).getByRole("link", { name: /rulebook/i });
+
+    expect(rulebook).toHaveAttribute("href", "https://fittestofthecoast.com/rulebook.pdf");
+    expect(rulebook).toHaveAttribute("target", "_blank");
+    expect(rulebook).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    expect(within(quickLinks).getByRole("link", { name: /leaderboard/i })).toBeInTheDocument();
+  });
+
+  it("shows a link's note, so a not-yet-live link is not a surprise", async () => {
+    serve(
+      getMockRawSchedule({
+        links: [
+          { label: "Leaderboard", url: "https://competitioncorner.net/ff/19273/results", note: "soon" },
+        ],
+      }),
+    );
+
+    await renderApp();
+
+    const quickLinks = await screen.findByRole("navigation", { name: /competition links/i });
+    expect(within(quickLinks).getByText("soon")).toBeInTheDocument();
+  });
+
+  it("renders no link bar at all when the data has none", async () => {
+    serve(getMockRawSchedule({ links: [] }));
+
+    await renderApp();
+
+    await waitFor(() => expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument());
+    expect(screen.queryByRole("navigation", { name: /competition links/i })).not.toBeInTheDocument();
+  });
+
   it("lists every scheduled event once the file loads", async () => {
     serve(scheduleOf());
 

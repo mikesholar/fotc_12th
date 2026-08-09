@@ -4,6 +4,18 @@
     "location": "Summerville, SC"
   },
 
+  "links": [
+    {
+      "label": "Rulebook",
+      "url": "https://fittestofthecoast.com/wp-content/uploads/2026/07/2026-27_Season_Rulebook_7.27.2026.pdf"
+    },
+    {
+      "label": "Leaderboard",
+      "url": "https://competitioncorner.net/ff/19273/results",
+      "note": "soon"
+    }
+  ],
+
   "teams": [
     {
       "id": "quarterly-gains",
