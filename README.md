@@ -80,6 +80,16 @@ The page shows a red card listing exactly what's wrong and which field it's in,
 rather than going blank. Unknown entrant ids, duplicate ids, unparseable dates and
 end-before-start are all caught.
 
+## The filter
+
+The chip row filters by **division** or by **entry type** (Teams / Individuals), not by
+individual team. Options are derived from the data — add a team in a new division and a
+new chip appears automatically. Entrants with no division are excluded from division
+filters but still show under All and their entry type.
+
+Filtering narrows both the roster and the schedule. Gym-wide events (`"entrants": "all"`)
+stay visible under every filter, since they apply to everyone.
+
 ## Adding championship heat times
 
 When FOTC publishes heats, add one event per entrant with `phase: "championship"` and
@@ -110,7 +120,10 @@ A failure blocks the deploy.
 
 - FOTC has said one qualifier week carries two scored workouts but not which one.
   The data assumes **Week 3** (`wod34-release` / `wod34-due`).
-- Eight of the twelve teams have no division recorded yet and show "Division TBD".
-- "Caleb" (Benji / Caleb) and "Ashley" (Ashley / Carolyn) need surnames.
-- Emily Banks is entered as a team needing a teammate, and separately as an individual.
-- Jeremy Schmidt's entry type is unconfirmed.
+- Sarah / Debra need surnames and a division.
+- Six individuals have no division recorded and show "Division TBD".
+- Emily Banks is entered as a team seeking a teammate, and separately as an individual.
+- Jeremy Schmid's entry type is unconfirmed (spelled "Jeremy Schmidt" in an earlier
+  version of the sheet — worth confirming which is right).
+- Benji McRoberts, Brenda Mullaney, Lauren Lisko and Kyle Takayama each compete both
+  on a team and individually, so they appear twice with different ids.

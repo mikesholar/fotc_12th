@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { loadSchedule } from "./data/load-schedule";
-import { ALL_ENTRANTS, filterEventsByEntrant } from "./domain/filter-events";
+import { ALL, buildFilterOptions, entrantIdsMatching, matchesFilter } from "./domain/entrant-filter";
+import { filterEventsForEntrants } from "./domain/filter-events";
 import { resolveViewerTimeZone } from "./domain/format-event-time";
 import { findNextEvent } from "./domain/next-event";
 import { ErrorCard } from "./components/ErrorCard";
@@ -21,7 +22,7 @@ type LoadState =
 
 const App = () => {
   const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [selectedEntrant, setSelectedEntrant] = useState<string>(ALL_ENTRANTS);
+  const [selectedEntrant, setSelectedEntrant] = useState<string>(ALL);
   const [now, setNow] = useState<Date>(() => new Date());
   const timeZone = resolveViewerTimeZone();
 
@@ -97,15 +98,23 @@ const ScheduleView = ({
   timeZone,
 }: ScheduleViewProps) => {
   const entrants = [...schedule.teams, ...schedule.individuals];
-  const visibleEvents = filterEventsByEntrant(schedule.events, selectedEntrant);
+  const visibleEvents = filterEventsForEntrants(
+    schedule.events,
+    entrantIdsMatching(schedule, selectedEntrant),
+  );
   const nextEvent = findNextEvent(visibleEvents, now);
+  const visibleTeams = schedule.teams.filter((team) =>
+    matchesFilter(team, "team", selectedEntrant),
+  );
+  const visibleIndividuals = schedule.individuals.filter((individual) =>
+    matchesFilter(individual, "individual", selectedEntrant),
+  );
 
   return (
     <>
       <Hero schedule={schedule} />
       <EntrantFilter
-        teams={schedule.teams}
-        individuals={schedule.individuals}
+        options={buildFilterOptions(schedule)}
         selected={selectedEntrant}
         onSelect={onSelectEntrant}
       />
@@ -114,7 +123,7 @@ const ScheduleView = ({
       </div>
       <div className="wrap">
         <ScheduleBoard events={visibleEvents} entrants={entrants} timeZone={timeZone} />
-        <Roster teams={schedule.teams} individuals={schedule.individuals} />
+        <Roster teams={visibleTeams} individuals={visibleIndividuals} />
       </div>
     </>
   );

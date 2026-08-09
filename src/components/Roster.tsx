@@ -15,6 +15,19 @@ const DivisionLine = ({ division }: { readonly division?: string }) =>
     <div className="entrant__div entrant__div--tbd">Division TBD</div>
   );
 
+const plural = (count: number, word: string): string =>
+  `${count} ${count === 1 ? word : `${word}s`}`;
+
+const describeRoster = (teamCount: number, individualCount: number): string => {
+  const parts = [
+    teamCount > 0 ? plural(teamCount, "team") : undefined,
+    individualCount > 0 ? plural(individualCount, "individual") : undefined,
+  ].filter((part): part is string => part !== undefined);
+
+  if (parts.length === 0) return "Nobody matches this filter.";
+  return `${parts.join(" and ")} repping 12th State.`;
+};
+
 type RosterProps = {
   readonly teams: readonly Team[];
   readonly individuals: readonly Individual[];
@@ -25,13 +38,14 @@ export const Roster = ({ teams, individuals }: RosterProps) => (
     <div className="section__head">
       <p className="eyebrow">The Roster</p>
       <h2>Who's Competing</h2>
-      <p>
-        {teams.length} {teams.length === 1 ? "team" : "teams"} and {individuals.length}{" "}
-        {individuals.length === 1 ? "individual" : "individuals"} repping 12th State.
-      </p>
+      <p>{describeRoster(teams.length, individuals.length)}</p>
     </div>
 
-    <h3 className="roster__label">Teams</h3>
+    {teams.length === 0 && individuals.length === 0 && (
+      <p className="empty">Nobody matches this filter.</p>
+    )}
+
+    {teams.length > 0 && <h3 className="roster__label">Teams</h3>}
     <div className="teamgrid">
       {teams.map((team) => (
         <div className="teamcard" key={team.id} style={{ ["--tc" as string]: team.color }}>

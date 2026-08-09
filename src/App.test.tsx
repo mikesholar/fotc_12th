@@ -99,27 +99,70 @@ describe("Road to Charleston", () => {
     expect(within(nextUp).getByText("Workout 1 released")).toBeInTheDocument();
   });
 
-  it("shows a team's own events alongside gym-wide ones when filtered", async () => {
+  it("narrows the roster to a division", async () => {
     serve(scheduleOf());
     await renderApp();
-    await waitFor(() => expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument());
+    await waitFor(() => expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument());
 
-    await userEvent.click(screen.getByRole("button", { name: /hold the line/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^team m\/f rx$/i }));
 
-    expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument();
-    expect(within(board()).getByText("Hold the Line heat one")).toBeInTheDocument();
-    expect(within(board()).queryByText("Salt and Sand heat one")).not.toBeInTheDocument();
+    expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument();
+    expect(within(roster()).queryByText("Jamie Fox")).not.toBeInTheDocument();
   });
 
-  it("restores the full schedule when the filter is cleared", async () => {
+  it("narrows the roster to individuals only", async () => {
+    serve(scheduleOf());
+    await renderApp();
+    await waitFor(() => expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole("button", { name: /^individuals$/i }));
+
+    expect(within(roster()).getByText("Jamie Fox")).toBeInTheDocument();
+    expect(within(roster()).queryByText("Hold the Line")).not.toBeInTheDocument();
+  });
+
+  it("restores everything when the filter is cleared", async () => {
+    serve(scheduleOf());
+    await renderApp();
+    await waitFor(() => expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument());
+    await userEvent.click(screen.getByRole("button", { name: /^individuals$/i }));
+
+    await userEvent.click(screen.getByRole("button", { name: /^all$/i }));
+
+    expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument();
+    expect(within(roster()).getByText("Jamie Fox")).toBeInTheDocument();
+  });
+
+  it("keeps gym-wide events visible under every filter", async () => {
     serve(scheduleOf());
     await renderApp();
     await waitFor(() => expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument());
-    await userEvent.click(screen.getByRole("button", { name: /hold the line/i }));
 
-    await userEvent.click(screen.getByRole("button", { name: /all teams/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^individuals$/i }));
 
-    expect(within(board()).getByText("Salt and Sand heat one")).toBeInTheDocument();
+    expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument();
+    expect(within(board()).queryByText("Hold the Line heat one")).not.toBeInTheDocument();
+  });
+
+  it("describes only what is on screen when a filter hides the teams", async () => {
+    serve(scheduleOf());
+    await renderApp();
+    await waitFor(() => expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole("button", { name: /^individuals$/i }));
+
+    expect(within(roster()).queryByText(/0 teams/i)).not.toBeInTheDocument();
+    expect(within(roster()).getByText(/1 individual repping/i)).toBeInTheDocument();
+  });
+
+  it("offers no per-team chips, only divisions and entry types", async () => {
+    serve(scheduleOf());
+    await renderApp();
+    await waitFor(() => expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument());
+
+    const filter = screen.getByRole("group", { name: /filter/i });
+
+    expect(within(filter).queryByRole("button", { name: /^battery brothers$/i })).toBeNull();
   });
 
   it("lists the roster with each team's athletes", async () => {
@@ -137,29 +180,6 @@ describe("Road to Charleston", () => {
     await renderApp();
 
     await waitFor(() => expect(within(roster()).getByText("Jamie Fox")).toBeInTheDocument());
-  });
-
-  it("filters the schedule down to an individual competitor", async () => {
-    serve(
-      scheduleOf([
-        ...defaultEvents,
-        getMockRawEvent({
-          id: "solo-heat",
-          kind: "comp",
-          title: "Jamie Fox heat one",
-          start: "2027-01-16T09:00:00-05:00",
-          phase: "championship",
-          entrants: ["indy-jamie-fox"],
-        }),
-      ]),
-    );
-    await renderApp();
-    await waitFor(() => expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument());
-
-    await userEvent.click(screen.getByRole("button", { name: /jamie fox/i }));
-
-    expect(within(board()).getByText("Jamie Fox heat one")).toBeInTheDocument();
-    expect(within(board()).queryByText("Hold the Line heat one")).not.toBeInTheDocument();
   });
 
   it("says a division is undecided rather than leaving it blank", async () => {

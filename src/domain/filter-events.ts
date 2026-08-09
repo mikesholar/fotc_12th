@@ -1,13 +1,15 @@
 import type { ScheduleEvent } from "../types/schedule";
+import { ALL } from "./entrant-filter";
 
-export const ALL_ENTRANTS = "all";
-
-export const filterEventsByEntrant = (
+export const filterEventsForEntrants = (
   events: readonly ScheduleEvent[],
-  entrantId: string,
+  entrantIds: typeof ALL | readonly string[],
 ): readonly ScheduleEvent[] => {
-  if (entrantId === ALL_ENTRANTS) return events;
+  if (entrantIds === ALL) return events;
+
+  const selected = new Set(entrantIds);
   return events.filter(
-    (event) => event.entrants === ALL_ENTRANTS || event.entrants.includes(entrantId),
+    (event) =>
+      event.entrants === "all" || event.entrants.some((id) => selected.has(id)),
   );
 };
