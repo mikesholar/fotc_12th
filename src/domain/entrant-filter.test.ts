@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ALL, buildFilterOptions, entrantIdsMatching, matchesFilter } from "./entrant-filter";
+import { ALL, buildFilterBar, entrantIdsMatching, matchesFilter } from "./entrant-filter";
 import { getMockSchedule } from "../test/factories";
 
 const schedule = getMockSchedule({
@@ -32,34 +32,93 @@ const schedule = getMockSchedule({
   events: [],
 });
 
-describe("Filtering by division or entry type", () => {
-  it("offers everyone, both entry types, then each division alphabetically", () => {
-    const labels = buildFilterOptions(schedule).map((option) => option.label);
+const labelsOf = (options: readonly { readonly label: string }[]): readonly string[] =>
+  options.map((option) => option.label);
 
-    expect(labels).toEqual([
-      "All",
-      "Teams",
-      "Individuals",
-      "Intermediate",
-      "Novice",
-      "Teen",
+const leaderboardSchedule = getMockSchedule({
+  teams: [
+    "Team Novice Co-Ed",
+    "Team 45+ Co-Ed",
+    "Team PRO/RX Men",
+    "Team 35+ Co-Ed",
+    "Team Intermediate Women",
+  ].map((division, i) => ({
+    id: `team-${i}`,
+    name: `Team ${i}`,
+    division,
+    color: "#FF5959",
+    athletes: ["A", "B"],
+  })),
+  individuals: [
+    "Teen Girls (13-15)",
+    "50-54 Male",
+    "Novice Male",
+    "35-39 Male",
+    "PRO/RX Female",
+    "Intermediate Men",
+  ].map((division, i) => ({ id: `indy-${i}`, name: `Solo ${i}`, division, color: "#4ADE80" })),
+  events: [],
+});
+
+describe("Grouping the filter chips by entry type", () => {
+  it("starts with just everyone and the two entry types", () => {
+    const bar = buildFilterBar(schedule, ALL);
+
+    expect(labelsOf(bar.types)).toEqual(["All", "Teams", "Individuals"]);
+    expect(bar.divisions).toEqual([]);
+    expect(bar.activeType).toBeUndefined();
+  });
+
+  it("reveals only team divisions once Teams is chosen, without repeating 'Team'", () => {
+    const bar = buildFilterBar(leaderboardSchedule, "type:team");
+
+    expect(bar.activeType).toBe("team");
+    expect(labelsOf(bar.divisions)).toEqual([
+      "PRO/RX Men",
+      "Intermediate Women",
+      "Novice Co-Ed",
+      "35+ Co-Ed",
+      "45+ Co-Ed",
     ]);
   });
 
-  it("lists each division once even when several entrants share it", () => {
-    const novice = buildFilterOptions(schedule).filter((o) => o.label === "Novice");
+  it("reveals individual divisions by level, age groups youngest first, teens last", () => {
+    const bar = buildFilterBar(leaderboardSchedule, "type:individual");
 
-    expect(novice).toHaveLength(1);
+    expect(labelsOf(bar.divisions)).toEqual([
+      "PRO/RX Female",
+      "Intermediate Men",
+      "Novice Male",
+      "35-39 Male",
+      "50-54 Male",
+      "Teen Girls (13-15)",
+    ]);
   });
 
-  it("omits the entry-type options when there are no individuals", () => {
+  it("keeps a chosen division's siblings on show and its entry type marked", () => {
+    const bar = buildFilterBar(leaderboardSchedule, "div:Team Novice Co-Ed");
+
+    expect(bar.activeType).toBe("team");
+    expect(labelsOf(bar.divisions)).toContain("45+ Co-Ed");
+    expect(bar.divisions.map((option) => option.id)).toContain("div:Team Novice Co-Ed");
+  });
+
+  it("lists a division shared by teams and individuals under both", () => {
+    expect(labelsOf(buildFilterBar(schedule, "type:team").divisions)).toContain("Novice");
+    expect(labelsOf(buildFilterBar(schedule, "type:individual").divisions)).toContain("Novice");
+  });
+
+  it("shows every division straight away when there is only one entry type", () => {
     const teamsOnly = getMockSchedule({ individuals: [], events: [] });
 
-    const labels = buildFilterOptions(teamsOnly).map((option) => option.label);
+    const bar = buildFilterBar(teamsOnly, ALL);
 
-    expect(labels).not.toContain("Individuals");
+    expect(labelsOf(bar.types)).toEqual(["All"]);
+    expect(labelsOf(bar.divisions)).toEqual(["Team M/F Rx"]);
   });
+});
 
+describe("Filtering by division or entry type", () => {
   it("matches every entrant when nothing is selected", () => {
     expect(entrantIdsMatching(schedule, ALL)).toBe(ALL);
   });

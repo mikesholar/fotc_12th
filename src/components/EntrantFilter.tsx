@@ -1,26 +1,55 @@
-import type { FilterOption } from "../domain/entrant-filter";
+import type { FilterBar, FilterOption } from "../domain/entrant-filter";
 
 type EntrantFilterProps = {
-  readonly options: readonly FilterOption[];
+  readonly bar: FilterBar;
   readonly selected: string;
   readonly onSelect: (filterId: string) => void;
 };
 
-export const EntrantFilter = ({ options, selected, onSelect }: EntrantFilterProps) => (
+type ChipProps = {
+  readonly option: FilterOption;
+  readonly selected: string;
+  readonly isParent?: boolean;
+  readonly onSelect: (filterId: string) => void;
+};
+
+const Chip = ({ option, selected, isParent = false, onSelect }: ChipProps) => {
+  const isOn = selected === option.id;
+  const className = ["chip", isOn && "chip--on", isParent && !isOn && "chip--parent"]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <button
+      type="button"
+      className={className}
+      aria-pressed={isOn}
+      onClick={() => onSelect(option.id)}
+    >
+      {option.label}
+    </button>
+  );
+};
+
+export const EntrantFilter = ({ bar, selected, onSelect }: EntrantFilterProps) => (
   <div className="filters">
     <div className="wrap">
       <div className="chips" role="group" aria-label="Filter by division or entry type">
         <span className="chips__label">Filter</span>
-        {options.map((option) => (
-          <button
-            type="button"
+        {bar.types.map((option) => (
+          <Chip
             key={option.id}
-            className={`chip${selected === option.id ? " chip--on" : ""}`}
-            aria-pressed={selected === option.id}
-            onClick={() => onSelect(option.id)}
-          >
-            {option.label}
-          </button>
+            option={option}
+            selected={selected}
+            isParent={option.id === `type:${bar.activeType}`}
+            onSelect={onSelect}
+          />
+        ))}
+        {bar.divisions.length > 0 && bar.types.length > 1 && (
+          <span className="chips__divider" aria-hidden="true" />
+        )}
+        {bar.divisions.map((option) => (
+          <Chip key={option.id} option={option} selected={selected} onSelect={onSelect} />
         ))}
       </div>
     </div>

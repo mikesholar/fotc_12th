@@ -212,7 +212,8 @@ describe("Road to Charleston", () => {
     await renderApp();
     await waitFor(() => expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument());
 
-    await userEvent.click(screen.getByRole("button", { name: /^team m\/f rx$/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^teams$/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^m\/f rx$/i }));
 
     expect(within(roster()).getByText("Hold the Line")).toBeInTheDocument();
     expect(within(roster()).queryByText("Jamie Fox")).not.toBeInTheDocument();

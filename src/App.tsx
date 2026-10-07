@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadSchedule } from "./data/load-schedule";
-import { ALL, buildFilterOptions, entrantIdsMatching, matchesFilter } from "./domain/entrant-filter";
+import { ALL, buildFilterBar, entrantIdsMatching, matchesFilter } from "./domain/entrant-filter";
 import { filterEventsForEntrants } from "./domain/filter-events";
 import { resolveViewerTimeZone } from "./domain/format-event-time";
 import { findNextEvent } from "./domain/next-event";
@@ -117,7 +117,7 @@ const ScheduleView = ({
     <>
       <Hero schedule={schedule} />
       <EntrantFilter
-        options={buildFilterOptions(schedule)}
+        bar={buildFilterBar(schedule, selectedEntrant)}
         selected={selectedEntrant}
         onSelect={onSelectEntrant}
       />

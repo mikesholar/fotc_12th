@@ -104,10 +104,11 @@ reissues the rulebook. Grab the new address from
 
 ## The filter
 
-The chip row filters by **division** or by **entry type** (Teams / Individuals), not by
-individual team. Options are derived from the data — add a team in a new division and a
-new chip appears automatically. Entrants with no division are excluded from division
-filters but still show under All and their entry type.
+The chip row starts with **All · Teams · Individuals**. Choosing Teams or Individuals reveals
+that group's divisions after a divider (team divisions drop the repeated "Team" prefix),
+ordered by level: RX, Intermediate, Novice, age groups youngest first, then Teen. Choosing a
+division keeps its siblings on show and outlines its parent group. Everything is derived from
+the leaderboard data, so a new division gets a chip automatically.
 
 Filtering narrows the standings, the roster and the schedule. Gym-wide events (`"entrants": "all"`)
 stay visible under every filter, since they apply to everyone.

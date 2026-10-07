@@ -1068,3 +1068,7 @@ code {
   outline: none;
   border-color: var(--cyan);
 }
+.chip--parent {
+  border-color: #fff;
+  color: #fff;
+}
