@@ -118,6 +118,18 @@ describe("Road to Charleston", () => {
     expect(headline).toHaveTextContent("12th State @ FOTC");
   });
 
+  it("keeps the hero to the headline, without the intro, buttons or stat row", async () => {
+    serve(scheduleOf());
+
+    await renderApp();
+
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByText(/every drop, every deadline/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /see the schedule/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /meet the teams/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Championship")).not.toBeInTheDocument();
+  });
+
   it("puts the competition's own links at the very top", async () => {
     serve(
       getMockRawSchedule({
