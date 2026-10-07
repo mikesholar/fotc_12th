@@ -109,13 +109,13 @@ afterEach(() => {
 });
 
 describe("Road to Charleston", () => {
-  it("headlines the page as 12th State × FOTC", async () => {
+  it("headlines the page as 12th State @ FOTC", async () => {
     serve(scheduleOf());
 
     await renderApp();
 
     const headline = await screen.findByRole("heading", { level: 1 });
-    expect(headline).toHaveTextContent("12th State × FOTC");
+    expect(headline).toHaveTextContent("12th State @ FOTC");
   });
 
   it("puts the competition's own links at the very top", async () => {
