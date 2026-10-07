@@ -22,7 +22,7 @@ export const Hero = ({ schedule }: { readonly schedule: Schedule }) => {
           <span className="dot">·</span> {schedule.gym.location}
         </p>
         <h1>
-          Road to <em>Charleston</em>
+          12th State × <em>FOTC</em>
         </h1>
         <p className="hero__lede">
           Every drop, every deadline, every heat — one page tracking {schedule.gym.name} through
