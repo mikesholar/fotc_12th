@@ -4,3 +4,4 @@ coverage
 *.local
 .DS_Store
 .playwright-mcp
+public/data/standings.json

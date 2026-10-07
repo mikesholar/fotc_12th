@@ -175,3 +175,46 @@ describe("Schedule validation", () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe("Leaderboard standings on the roster", () => {
+  const standing = {
+    place: 3,
+    fieldSize: 42,
+    points: 12,
+    workouts: [{ name: "Workout 1", rank: 3, result: "212 reps" }],
+  };
+
+  it("keeps each entrant's place and workout ranks", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({
+        teams: [getMockRawTeam({ standing })],
+        individuals: [getMockRawIndividual({ standing })],
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.teams[0]?.standing).toEqual(standing);
+    expect(result.value.individuals[0]?.standing).toEqual(standing);
+  });
+
+  it("keeps when the standings were last read", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({ standingsUpdatedAt: "2026-10-08T12:00:00.000Z" }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.standingsUpdatedAt).toBe("2026-10-08T12:00:00.000Z");
+  });
+
+  it("rejects a standing without a field size", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({ teams: [getMockRawTeam({ standing: { place: 3, workouts: [] } })] }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.join(" ")).toMatch(/teams\[0\].*fieldSize/);
+  });
+});

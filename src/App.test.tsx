@@ -2,7 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
-import { getMockRawEvent, getMockRawSchedule } from "./test/factories";
+import {
+  getMockRawEvent,
+  getMockRawIndividual,
+  getMockRawSchedule,
+  getMockRawTeam,
+} from "./test/factories";
+import { serveFiles } from "./test/serve-files";
 
 const SEPTEMBER = new Date("2026-09-01T12:00:00-04:00");
 
@@ -50,6 +56,42 @@ const scheduleOf = (events = defaultEvents): Record<string, unknown> =>
 
 const board = (): HTMLElement => screen.getByRole("region", { name: /^schedule$/i });
 const roster = (): HTMLElement => screen.getByRole("region", { name: /who's competing/i });
+const standingsSection = (): HTMLElement => screen.getByRole("region", { name: /where we stand/i });
+
+const standingOf = (place: number | undefined, fieldSize: number, rank?: number) => ({
+  place,
+  fieldSize,
+  points: place === undefined ? undefined : place * 4,
+  workouts: [{ name: "Workout 1", rank, result: rank === undefined ? undefined : "212 reps" }],
+});
+
+const rankedSchedule = (): Record<string, unknown> =>
+  getMockRawSchedule({
+    teams: [
+      getMockRawTeam({ standing: standingOf(10, 20, 10) }),
+      getMockRawTeam({
+        id: "salt-and-sand",
+        name: "Salt & Sand",
+        division: "Team Novice Co-Ed",
+        athletes: ["Avery Bowen", "Sam Delaney"],
+        standing: standingOf(3, 60, 3),
+      }),
+    ],
+    individuals: [getMockRawIndividual({ standing: standingOf(undefined, 30) })],
+    events: [],
+  });
+
+const serveRanked = (): void => {
+  const schedule = rankedSchedule();
+  serveFiles({
+    "schedule.json": schedule,
+    "standings.json": {
+      updatedAt: "2026-10-08T16:00:00.000Z",
+      teams: schedule["teams"],
+      individuals: schedule["individuals"],
+    },
+  });
+};
 
 const renderApp = async (): Promise<void> => {
   render(<App />);
@@ -266,5 +308,72 @@ describe("Road to Charleston", () => {
 
     await waitFor(() => expect(within(board()).getByText("Workout 1 released")).toBeInTheDocument());
     expect(screen.queryByRole("region", { name: /next up/i })).not.toBeInTheDocument();
+  });
+
+  it("shows each entrant's leaderboard place on their roster card", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(within(roster()).getByText("Salt & Sand")).toBeInTheDocument());
+    expect(within(roster()).getByText(/3rd of 60/)).toBeInTheDocument();
+    expect(within(roster()).getByText(/10th of 20/)).toBeInTheDocument();
+  });
+
+  it("says a roster card is awaiting scores before any are revealed", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(within(roster()).getByText("Jamie Fox")).toBeInTheDocument());
+    expect(within(roster()).getByText(/awaiting scores/i)).toBeInTheDocument();
+  });
+
+  it("ranks our entrants best-first by how far up their division they are", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const rows = within(standingsSection()).getAllByRole("row").slice(1);
+    expect(rows.map((row) => within(row).getAllByRole("cell")[0]?.textContent)).toEqual([
+      expect.stringContaining("Salt & Sand"),
+      expect.stringContaining("Hold the Line"),
+      expect.stringContaining("Jamie Fox"),
+    ]);
+  });
+
+  it("shows the rank on every workout in the standings", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    expect(
+      within(standingsSection()).getByRole("columnheader", { name: "Workout 1" }),
+    ).toBeInTheDocument();
+    const saltRow = within(standingsSection()).getByRole("row", { name: /salt & sand/i });
+    expect(within(saltRow).getByText("3rd")).toBeInTheDocument();
+    expect(within(saltRow).getByText("212 reps")).toBeInTheDocument();
+  });
+
+  it("narrows the standings with the same filter as the roster", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole("button", { name: /^individuals$/i }));
+
+    expect(within(standingsSection()).queryByText("Salt & Sand")).not.toBeInTheDocument();
+    expect(within(standingsSection()).getByText("Jamie Fox")).toBeInTheDocument();
+  });
+
+  it("says when the leaderboard was last read", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    expect(within(standingsSection()).getByText(/updated .*oct 8/i)).toBeInTheDocument();
   });
 });

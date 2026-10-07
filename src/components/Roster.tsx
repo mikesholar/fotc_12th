@@ -1,4 +1,5 @@
-import type { Individual, Team } from "../types/schedule";
+import { describePlace } from "../domain/standings";
+import type { Individual, Standing, Team } from "../types/schedule";
 
 const initialsOf = (name: string): string =>
   name
@@ -14,6 +15,11 @@ const DivisionLine = ({ division }: { readonly division?: string }) =>
   ) : (
     <div className="entrant__div entrant__div--tbd">Division TBD</div>
   );
+
+const PlaceLine = ({ standing }: { readonly standing?: Standing }) => {
+  const place = describePlace(standing);
+  return place ? <p className="entrant__place">{place}</p> : null;
+};
 
 const plural = (count: number, word: string): string =>
   `${count} ${count === 1 ? word : `${word}s`}`;
@@ -61,6 +67,7 @@ export const Roster = ({ teams, individuals }: RosterProps) => (
               </li>
             ))}
           </ul>
+          <PlaceLine standing={team.standing} />
           {team.note && <p className="entrant__note">{team.note}</p>}
         </div>
       ))}
@@ -83,6 +90,7 @@ export const Roster = ({ teams, individuals }: RosterProps) => (
                 </span>
                 {individual.name}
               </h4>
+              <PlaceLine standing={individual.standing} />
               {individual.note && <p className="entrant__note">{individual.note}</p>}
             </div>
           ))}

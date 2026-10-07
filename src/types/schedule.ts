@@ -4,6 +4,19 @@ export type EventKind = (typeof EVENT_KINDS)[number];
 export const PHASES = ["qualifier", "championship"] as const;
 export type Phase = (typeof PHASES)[number];
 
+export type WorkoutStanding = {
+  readonly name: string;
+  readonly rank?: number;
+  readonly result?: string;
+};
+
+export type Standing = {
+  readonly place?: number;
+  readonly fieldSize: number;
+  readonly points?: number;
+  readonly workouts: readonly WorkoutStanding[];
+};
+
 export type Team = {
   readonly id: string;
   readonly name: string;
@@ -11,6 +24,7 @@ export type Team = {
   readonly color: string;
   readonly athletes: readonly string[];
   readonly note?: string;
+  readonly standing?: Standing;
 };
 
 export type Individual = {
@@ -19,6 +33,7 @@ export type Individual = {
   readonly division?: string;
   readonly color: string;
   readonly note?: string;
+  readonly standing?: Standing;
 };
 
 export type ScheduleEvent = {
@@ -52,6 +67,7 @@ export type Schedule = {
   readonly teams: readonly Team[];
   readonly individuals: readonly Individual[];
   readonly events: readonly ScheduleEvent[];
+  readonly standingsUpdatedAt?: string;
 };
 
 export type Valid<T> = { readonly ok: true; readonly value: T };

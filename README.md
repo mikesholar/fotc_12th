@@ -15,39 +15,41 @@ break asset loading.
 
 Everything on the page comes from one file: **`public/data/schedule.json`**.
 
-Edit it on github.com, commit, and the change is live on the next page load — the
-file is served as a static asset, so it does **not** wait for a rebuild.
+Everything except the roster, which comes from the leaderboard (see below).
 
-### Adding a team
+Edit it on github.com, commit, and the change is live once the deploy finishes.
+
+## The roster and leaderboard places
+
+The roster is **not** edited by hand. It comes from the Competition Corner leaderboard
+for the Coastal Qualifier (event `21880`): every team or individual whose affiliate looks
+like "12th State" is listed, with their division, overall place, points and rank on each
+workout.
+
+`npm run standings` reads the leaderboard and writes `public/data/standings.json`
+(gitignored). The deploy workflow runs it before every build, and a cron re-deploys
+**every 30 minutes during October and November**, so places lag the leaderboard by at
+most about half an hour. Trigger the workflow by hand from the Actions tab for an
+immediate refresh.
+
+The browser cannot read Competition Corner directly — its API sends no CORS headers —
+which is why the fetch happens at build time rather than on page load.
+
+Settings live in the `leaderboard` block of `schedule.json`:
 
 ```json
-{
-  "id": "new-team",
-  "name": "New Team",
-  "division": "Team M/F · Rx",
-  "color": "#4ADE80",
-  "athletes": ["First Last", "Second Person"]
+"leaderboard": {
+  "eventId": 21880,
+  "include": ["Chalk Dirty", "Brenda Mullaney"]
 }
 ```
 
-`id` must be unique **across teams and individuals** — events refer to entrants by it,
-and a duplicate is rejected at load. `division` and `note` are optional; a team with no
-division shows "Division TBD". `color` drives the card edge and filter dot.
+`include` lists entries (exact leaderboard name) registered under another gym that should
+still count as ours. Ids are `cc-<participant id>` and stay stable for the season — use them
+in an event's `entrants` to tag a championship heat.
 
-### Adding an individual competitor
-
-```json
-{
-  "id": "indy-first-last",
-  "name": "First Last",
-  "division": "Intermediate",
-  "color": "#4ADE80",
-  "note": "Optional line, e.g. 'Also competing on Team X'."
-}
-```
-
-Goes in the `individuals` array. Someone competing both solo and on a team appears in
-both lists with different ids — prefix individual entries with `indy-`.
+Places are blank until FOTC reveals a workout's scores; until then cards say
+"Awaiting scores".
 
 ### Adding an event
 
@@ -62,7 +64,7 @@ both lists with different ids — prefix individual entries with `indy-`.
   "entrants": "all",
   "location": "Online · FOTC YouTube",
   "notes": "Optional detail line.",
-  "link": "https://competitioncorner.net/events/19273"
+  "link": "https://competitioncorner.net/ff/21880/results"
 }
 ```
 
@@ -71,7 +73,7 @@ both lists with different ids — prefix individual entries with `indy-`.
 | `kind` | `release` (cyan) · `due` (coral) · `comp` (white) · `milestone` (grey) |
 | `start` | ISO 8601 **with offset**. Eastern is `-04:00` in October, `-05:00` in January |
 | `phase` | `qualifier` or `championship` — drives the hero stat row |
-| `entrants` | `"all"` for gym-wide, or an array of team/individual ids like `["quarterly-gains"]` |
+| `entrants` | `"all"` for gym-wide, or an array of entrant ids from `standings.json`, like `["cc-1520726"]` |
 | `end`, `week`, `location`, `notes`, `link` | All optional |
 
 ### If you make a typo
@@ -87,7 +89,7 @@ The slim bar above the header comes from the `links` array in `schedule.json`:
 ```json
 "links": [
   { "label": "Rulebook", "url": "https://fittestofthecoast.com/.../Rulebook.pdf" },
-  { "label": "Leaderboard", "url": "https://competitioncorner.net/ff/19273/results",
+  { "label": "Leaderboard", "url": "https://competitioncorner.net/ff/21880/results",
     "note": "soon" }
 ]
 ```
@@ -107,7 +109,7 @@ individual team. Options are derived from the data — add a team in a new divis
 new chip appears automatically. Entrants with no division are excluded from division
 filters but still show under All and their entry type.
 
-Filtering narrows both the roster and the schedule. Gym-wide events (`"entrants": "all"`)
+Filtering narrows the standings, the roster and the schedule. Gym-wide events (`"entrants": "all"`)
 stay visible under every filter, since they apply to everyone.
 
 ## Adding championship heat times
@@ -120,6 +122,7 @@ doing real work — right now every event is gym-wide, so filtering looks inert.
 
 ```bash
 npm install
+npm run standings  # fetch the roster and places — the page shows an error without it
 npm run dev        # local dev server
 npm test           # run the test suite
 npm run test:watch
@@ -140,10 +143,9 @@ A failure blocks the deploy.
 
 - FOTC has said one qualifier week carries two scored workouts but not which one.
   The data assumes **Week 3** (`wod34-release` / `wod34-due`).
-- Sarah / Debra need surnames and a division.
-- Six individuals have no division recorded and show "Division TBD".
-- Emily Banks is entered as a team seeking a teammate, and separately as an individual.
-- Jeremy Schmid's entry type is unconfirmed (spelled "Jeremy Schmidt" in an earlier
-  version of the sheet — worth confirming which is right).
-- Benji McRoberts, Brenda Mullaney, Lauren Lisko and Kyle Takayama each compete both
-  on a team and individually, so they appear twice with different ids.
+- The leaderboard roster differs from the gym's competitor spreadsheet: it includes
+  every 12th State registration (51 at last count), not just the people on the sheet.
+- Chalk Dirty and Brenda Mullaney register under CrossFit EXP, so they're pulled in via
+  `include`.
+- "Places" compare only within a division; the standings table orders entrants by how far
+  up their own division they sit.

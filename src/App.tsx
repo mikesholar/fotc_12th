@@ -11,6 +11,7 @@ import { NextUpCard } from "./components/NextUpCard";
 import { QuickLinks } from "./components/QuickLinks";
 import { Roster } from "./components/Roster";
 import { ScheduleBoard } from "./components/ScheduleBoard";
+import { Standings } from "./components/Standings";
 import { EntrantFilter } from "./components/EntrantFilter";
 import type { Schedule } from "./types/schedule";
 
@@ -124,6 +125,11 @@ const ScheduleView = ({
         {nextEvent && <NextUpCard event={nextEvent} now={now} timeZone={timeZone} />}
       </div>
       <div className="wrap">
+        <Standings
+          entrants={[...visibleTeams, ...visibleIndividuals]}
+          updatedAt={schedule.standingsUpdatedAt}
+          timeZone={timeZone}
+        />
         <ScheduleBoard events={visibleEvents} entrants={entrants} timeZone={timeZone} />
         <Roster teams={visibleTeams} individuals={visibleIndividuals} />
       </div>

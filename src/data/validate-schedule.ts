@@ -8,7 +8,9 @@ import {
   type QuickLink,
   type Schedule,
   type ScheduleEvent,
+  type Standing,
   type Team,
+  type WorkoutStanding,
 } from "../types/schedule";
 
 type Unknown = Record<string, unknown>;
@@ -57,6 +59,59 @@ const readEnum = <T extends string>(
 
 const isUsableDate = (value: string): boolean => !Number.isNaN(Date.parse(value));
 
+const readOptionalCount = (
+  source: Unknown,
+  key: string,
+  where: string,
+  errors: string[],
+): number | undefined => {
+  const value = source[key];
+  if (value === undefined) return undefined;
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
+    errors.push(`${where}: "${key}" must be a whole number when present`);
+    return undefined;
+  }
+  return value;
+};
+
+const readWorkoutStanding = (raw: unknown, where: string, errors: string[]): WorkoutStanding => {
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return { name: "" };
+  }
+  return {
+    name: readString(raw, "name", where, errors),
+    rank: readOptionalCount(raw, "rank", where, errors),
+    result: readOptionalString(raw, "result", where, errors),
+  };
+};
+
+const readStanding = (source: Unknown, owner: string, errors: string[]): Standing | undefined => {
+  const raw = source["standing"];
+  if (raw === undefined) return undefined;
+  const where = `${owner}.standing`;
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return undefined;
+  }
+
+  const fieldSize = readOptionalCount(raw, "fieldSize", where, errors);
+  if (fieldSize === undefined) errors.push(`${where}: "fieldSize" is required`);
+
+  const workoutsRaw = raw["workouts"];
+  if (!Array.isArray(workoutsRaw)) errors.push(`${where}: "workouts" must be an array`);
+  const workouts = Array.isArray(workoutsRaw)
+    ? workoutsRaw.map((workout, i) => readWorkoutStanding(workout, `${where}.workouts[${i}]`, errors))
+    : [];
+
+  return {
+    place: readOptionalCount(raw, "place", where, errors),
+    fieldSize: fieldSize ?? 0,
+    points: readOptionalCount(raw, "points", where, errors),
+    workouts,
+  };
+};
+
 const readTeam = (raw: unknown, index: number, errors: string[]): Team => {
   const where = `teams[${index}]`;
   if (!isObject(raw)) {
@@ -77,6 +132,7 @@ const readTeam = (raw: unknown, index: number, errors: string[]): Team => {
     color: readString(raw, "color", where, errors),
     athletes,
     note: readOptionalString(raw, "note", where, errors),
+    standing: readStanding(raw, where, errors),
   };
 };
 
@@ -92,6 +148,7 @@ const readIndividual = (raw: unknown, index: number, errors: string[]): Individu
     division: readOptionalString(raw, "division", where, errors),
     color: readString(raw, "color", where, errors),
     note: readOptionalString(raw, "note", where, errors),
+    standing: readStanding(raw, where, errors),
   };
 };
 
@@ -253,6 +310,8 @@ export const validateSchedule = (raw: unknown): Result<Schedule> => {
       );
   });
 
+  const standingsUpdatedAt = readOptionalString(raw, "standingsUpdatedAt", "schedule", errors);
+
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, value: { gym, links, teams, individuals, events } };
+  return { ok: true, value: { gym, links, teams, individuals, events, standingsUpdatedAt } };
 };

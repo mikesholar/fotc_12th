@@ -1,0 +1,87 @@
+import {
+  describePlace,
+  formatUpdatedAt,
+  ordinal,
+  rankByStanding,
+  workoutNamesIn,
+  type RankedEntrant,
+} from "../domain/standings";
+
+type StandingsProps = {
+  readonly entrants: readonly RankedEntrant[];
+  readonly updatedAt?: string;
+  readonly timeZone: string;
+};
+
+const WorkoutCell = ({
+  entrant,
+  workoutName,
+}: {
+  readonly entrant: RankedEntrant;
+  readonly workoutName: string;
+}) => {
+  const workout = entrant.standing?.workouts.find((w) => w.name === workoutName);
+  if (workout?.rank === undefined) {
+    return <td className="standings__pending">—</td>;
+  }
+  return (
+    <td>
+      <b>{ordinal(workout.rank)}</b>
+      {workout.result && <span className="standings__result">{workout.result}</span>}
+    </td>
+  );
+};
+
+export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => {
+  const ranked = rankByStanding(entrants.filter((entrant) => entrant.standing !== undefined));
+  const workoutNames = workoutNamesIn(ranked);
+
+  return (
+    <section className="section section--divided" aria-label="Where we stand" id="standings">
+      <div className="section__head">
+        <p className="eyebrow">Coastal Qualifier Leaderboard</p>
+        <h2>Where We Stand</h2>
+        <p>
+          Place within each division, best first.
+          {updatedAt && <> Updated {formatUpdatedAt(updatedAt, timeZone)}.</>}
+        </p>
+      </div>
+
+      {ranked.length === 0 ? (
+        <p className="empty">Nobody matches this filter.</p>
+      ) : (
+        <div className="standings__scroll">
+          <table className="standings">
+            <thead>
+              <tr>
+                <th scope="col">Entrant</th>
+                <th scope="col">Place</th>
+                <th scope="col">Points</th>
+                {workoutNames.map((name) => (
+                  <th scope="col" key={name}>
+                    {name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {ranked.map((entrant) => (
+                <tr key={entrant.id} aria-label={entrant.name}>
+                  <td style={{ ["--tc" as string]: entrant.color }}>
+                    <span className="standings__name">{entrant.name}</span>
+                    <span className="standings__div">{entrant.division}</span>
+                  </td>
+                  <td className="standings__place">{describePlace(entrant.standing)}</td>
+                  <td>{entrant.standing?.points ?? "—"}</td>
+                  {workoutNames.map((name) => (
+                    <WorkoutCell key={name} entrant={entrant} workoutName={name} />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+};
