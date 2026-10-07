@@ -397,4 +397,46 @@ describe("Road to Charleston", () => {
     await waitFor(() => expect(standingsSection()).toBeInTheDocument());
     expect(within(standingsSection()).getByText(/updated .*oct 8/i)).toBeInTheDocument();
   });
+
+  it("finds an entrant in the standings by typing part of the team name", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.type(
+      within(standingsSection()).getByRole("searchbox", { name: /search/i }),
+      "salt",
+    );
+
+    expect(within(standingsSection()).getByText("Salt & Sand")).toBeInTheDocument();
+    expect(within(standingsSection()).queryByText("Hold the Line")).not.toBeInTheDocument();
+    expect(within(standingsSection()).queryByText("Jamie Fox")).not.toBeInTheDocument();
+  });
+
+  it("finds a team in the standings by one of its athletes", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.type(
+      within(standingsSection()).getByRole("searchbox", { name: /search/i }),
+      "morgan",
+    );
+
+    expect(within(standingsSection()).getByText("Hold the Line")).toBeInTheDocument();
+    expect(within(standingsSection()).queryByText("Salt & Sand")).not.toBeInTheDocument();
+  });
+
+  it("says so when the search matches nobody", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.type(
+      within(standingsSection()).getByRole("searchbox", { name: /search/i }),
+      "zzz",
+    );
+
+    expect(within(standingsSection()).getByText(/no one matches “zzz”/i)).toBeInTheDocument();
+  });
 });

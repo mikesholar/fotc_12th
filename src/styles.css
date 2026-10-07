@@ -1039,3 +1039,32 @@ code {
 .standings__pending {
   color: var(--muted);
 }
+.standings__search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  max-width: 420px;
+}
+.standings__search span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.standings__search input {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 0;
+}
+.standings__search input:focus {
+  outline: none;
+  border-color: var(--cyan);
+}

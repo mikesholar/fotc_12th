@@ -1,7 +1,18 @@
 import type { Individual, Standing, Team } from "../types/schedule";
 
 export type RankedEntrant = Pick<Team | Individual, "id" | "name" | "division" | "color"> & {
+  readonly athletes?: readonly string[];
   readonly standing?: Standing;
+};
+
+const normalise = (value: string): string => value.trim().toLowerCase();
+
+export const matchesSearch = (entrant: RankedEntrant, query: string): boolean => {
+  const needle = normalise(query);
+  if (needle === "") return true;
+  return [entrant.name, ...(entrant.athletes ?? [])].some((name) =>
+    normalise(name).includes(needle),
+  );
 };
 
 const ORDINAL_SUFFIXES: Record<Intl.LDMLPluralRule, string> = {

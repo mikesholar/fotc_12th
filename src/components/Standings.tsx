@@ -1,6 +1,8 @@
+import { useState } from "react";
 import {
   describePlace,
   formatUpdatedAt,
+  matchesSearch,
   ordinal,
   rankByStanding,
   workoutNamesIn,
@@ -32,8 +34,14 @@ const WorkoutCell = ({
   );
 };
 
+const emptyMessage = (query: string): string =>
+  query.trim() === "" ? "Nobody matches this filter." : `No one matches “${query.trim()}”.`;
+
 export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => {
-  const ranked = rankByStanding(entrants.filter((entrant) => entrant.standing !== undefined));
+  const [query, setQuery] = useState("");
+  const ranked = rankByStanding(
+    entrants.filter((entrant) => entrant.standing !== undefined && matchesSearch(entrant, query)),
+  );
   const workoutNames = workoutNamesIn(ranked);
 
   return (
@@ -47,8 +55,19 @@ export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => 
         </p>
       </div>
 
+      <label className="standings__search">
+        <span>Search</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Team or athlete name"
+          autoComplete="off"
+        />
+      </label>
+
       {ranked.length === 0 ? (
-        <p className="empty">Nobody matches this filter.</p>
+        <p className="empty">{emptyMessage(query)}</p>
       ) : (
         <div className="standings__scroll">
           <table className="standings">
