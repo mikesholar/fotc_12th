@@ -168,6 +168,33 @@ describe("Reading places from the leaderboard", () => {
     ]);
   });
 
+  it("records the division's cut lines, closest to the top first", () => {
+    const standings = build([
+      getMockRawDivisionTab({
+        scoringGroup: {
+          divisionId: 147111,
+          caption: "Team PRO/RX Men",
+          team: true,
+          divisionAdvancingNumbers: {
+            "57": "Advance to RX division ",
+            "19": "Advance to PRO division.",
+          },
+        },
+      }),
+    ]);
+
+    expect(standings.teams[0]?.standing?.cutLines).toEqual([
+      { place: 19, label: "Advance to PRO division." },
+      { place: 57, label: "Advance to RX division" },
+    ]);
+  });
+
+  it("has no cut lines when the division does not publish one", () => {
+    const standings = build([getMockRawDivisionTab()]);
+
+    expect(standings.teams[0]?.standing?.cutLines).toEqual([]);
+  });
+
   it("reads tied places like '4T' as fourth", () => {
     const standings = build([
       getMockRawDivisionTab({ athletes: [getMockRawLeaderboardTeam({ place: "4T" })] }),

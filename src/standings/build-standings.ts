@@ -1,4 +1,4 @@
-import type { Individual, Result, Standing, Team, WorkoutStanding } from "../types/schedule";
+import type { CutLine, Individual, Result, Standing, Team, WorkoutStanding } from "../types/schedule";
 
 export type StandingsFile = {
   readonly updatedAt: string;
@@ -58,6 +58,14 @@ const readWorkouts = (raw: unknown): readonly LeaderboardWorkout[] =>
         .map((workout) => ({ key: text(workout["key"]), name: text(workout["name"]) }))
     : [];
 
+const readCutLines = (raw: unknown): readonly CutLine[] =>
+  isObject(raw)
+    ? Object.entries(raw)
+        .map(([place, label]) => ({ place: leadingNumber(place), label: text(label) }))
+        .filter((line): line is CutLine => line.place !== undefined && line.place > 0)
+        .sort((a, b) => a.place - b.place)
+    : [];
+
 const readWorkoutStanding = (
   scores: unknown,
   workout: LeaderboardWorkout,
@@ -107,6 +115,7 @@ const readTab = (
 
   const workouts = readWorkouts(raw["workouts"]);
   const isTeam = group["team"] === true;
+  const cutLines = readCutLines(group["divisionAdvancingNumbers"]);
 
   return athletes
     .filter(isObject)
@@ -126,6 +135,7 @@ const readTab = (
           workouts: workouts.map((workout) =>
             readWorkoutStanding(athlete["workoutScores"], workout, place),
           ),
+          cutLines,
         },
       };
     });

@@ -10,11 +10,17 @@ export type WorkoutStanding = {
   readonly result?: string;
 };
 
+export type CutLine = {
+  readonly place: number;
+  readonly label: string;
+};
+
 export type Standing = {
   readonly place?: number;
   readonly fieldSize: number;
   readonly points?: number;
   readonly workouts: readonly WorkoutStanding[];
+  readonly cutLines: readonly CutLine[];
 };
 
 export type Team = {

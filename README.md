@@ -51,6 +51,12 @@ in an event's `entrants` to tag a championship heat.
 Places are blank until FOTC reveals a workout's scores; until then cards say
 "Awaiting scores".
 
+Each division's **cut line** comes from the same leaderboard (`divisionAdvancingNumbers`
+on Competition Corner, e.g. top 57 advance). An entrant at or above a line gets a green ✓
+beside their place, in the standings and on their roster card; hover it to see which line.
+Some PRO/RX divisions have two lines (PRO and RX) — the check names the higher one cleared.
+A tied place like "57T" counts as 57th, so it gets the check.
+
 ### Adding an event
 
 ```json

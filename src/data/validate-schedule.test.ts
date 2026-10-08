@@ -182,9 +182,10 @@ describe("Leaderboard standings on the roster", () => {
     fieldSize: 42,
     points: 12,
     workouts: [{ name: "Workout 1", rank: 3, result: "212 reps" }],
+    cutLines: [{ place: 19, label: "Advance to Fittest of the Coast" }],
   };
 
-  it("keeps each entrant's place and workout ranks", () => {
+  it("keeps each entrant's place, workout ranks and the division's cut lines", () => {
     const result = validateSchedule(
       getMockRawSchedule({
         teams: [getMockRawTeam({ standing })],
@@ -206,6 +207,29 @@ describe("Leaderboard standings on the roster", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.value.standingsUpdatedAt).toBe("2026-10-08T12:00:00.000Z");
+  });
+
+  it("treats a standing without cut lines as having none", () => {
+    const withoutCutLines = { place: 3, fieldSize: 42, workouts: [] };
+    const result = validateSchedule(
+      getMockRawSchedule({ teams: [getMockRawTeam({ standing: withoutCutLines })] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.teams[0]?.standing?.cutLines).toEqual([]);
+  });
+
+  it("rejects a cut line without a place", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({
+        teams: [getMockRawTeam({ standing: { ...standing, cutLines: [{ label: "In" }] } })],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.join(" ")).toMatch(/teams\[0\]\.standing\.cutLines\[0\].*place/);
   });
 
   it("rejects a standing without a field size", () => {

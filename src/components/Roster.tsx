@@ -1,4 +1,5 @@
 import { describePlace } from "../domain/standings";
+import { CutCheck } from "./CutCheck";
 import type { Individual, Standing, Team } from "../types/schedule";
 
 const initialsOf = (name: string): string =>
@@ -18,7 +19,12 @@ const DivisionLine = ({ division }: { readonly division?: string }) =>
 
 const PlaceLine = ({ standing }: { readonly standing?: Standing }) => {
   const place = describePlace(standing);
-  return place ? <p className="entrant__place">{place}</p> : null;
+  return place ? (
+    <p className="entrant__place">
+      {place}
+      <CutCheck standing={standing} />
+    </p>
+  ) : null;
 };
 
 const plural = (count: number, word: string): string =>

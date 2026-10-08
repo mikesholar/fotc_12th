@@ -8,6 +8,7 @@ import {
   type QuickLink,
   type Schedule,
   type ScheduleEvent,
+  type CutLine,
   type Standing,
   type Team,
   type WorkoutStanding,
@@ -86,6 +87,26 @@ const readWorkoutStanding = (raw: unknown, where: string, errors: string[]): Wor
   };
 };
 
+const readCutLine = (raw: unknown, where: string, errors: string[]): CutLine => {
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return { place: 0, label: "" };
+  }
+  const place = readOptionalCount(raw, "place", where, errors);
+  if (place === undefined) errors.push(`${where}: "place" is required`);
+  return { place: place ?? 0, label: readString(raw, "label", where, errors) };
+};
+
+const readCutLines = (source: Unknown, where: string, errors: string[]): readonly CutLine[] => {
+  const raw = source["cutLines"];
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) {
+    errors.push(`${where}: "cutLines" must be an array when present`);
+    return [];
+  }
+  return raw.map((line, i) => readCutLine(line, `${where}.cutLines[${i}]`, errors));
+};
+
 const readStanding = (source: Unknown, owner: string, errors: string[]): Standing | undefined => {
   const raw = source["standing"];
   if (raw === undefined) return undefined;
@@ -109,6 +130,7 @@ const readStanding = (source: Unknown, owner: string, errors: string[]): Standin
     fieldSize: fieldSize ?? 0,
     points: readOptionalCount(raw, "points", where, errors),
     workouts,
+    cutLines: readCutLines(raw, where, errors),
   };
 };
 

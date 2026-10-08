@@ -63,18 +63,31 @@ const standingOf = (place: number | undefined, fieldSize: number, rank?: number)
   fieldSize,
   points: place === undefined ? undefined : place * 4,
   workouts: [{ name: "Workout 1", rank, result: rank === undefined ? undefined : "212 reps" }],
+  cutLines: [{ place: 19, label: "Advance to Fittest of the Coast" }],
 });
+
+const PRO_AND_RX_CUTS = [
+  { place: 2, label: "Advance to PRO division" },
+  { place: 5, label: "Advance to RX division" },
+];
 
 const rankedSchedule = (): Record<string, unknown> =>
   getMockRawSchedule({
     teams: [
-      getMockRawTeam({ standing: standingOf(10, 20, 10) }),
+      getMockRawTeam({ standing: { ...standingOf(10, 20, 10), cutLines: PRO_AND_RX_CUTS } }),
       getMockRawTeam({
         id: "salt-and-sand",
         name: "Salt & Sand",
         division: "Team Novice Co-Ed",
         athletes: ["Avery Bowen", "Sam Delaney"],
         standing: standingOf(3, 60, 3),
+      }),
+      getMockRawTeam({
+        id: "battery-brothers",
+        name: "Battery Brothers",
+        division: "Team PRO/RX Men",
+        athletes: ["Tyler Knox", "Devon Pryor"],
+        standing: { ...standingOf(4, 30, 4), cutLines: PRO_AND_RX_CUTS },
       }),
     ],
     individuals: [getMockRawIndividual({ standing: standingOf(undefined, 30) })],
@@ -360,9 +373,55 @@ describe("Road to Charleston", () => {
     const rows = within(standingsSection()).getAllByRole("row").slice(1);
     expect(rows.map((row) => within(row).getAllByRole("cell")[0]?.textContent)).toEqual([
       expect.stringContaining("Salt & Sand"),
+      expect.stringContaining("Battery Brothers"),
       expect.stringContaining("Hold the Line"),
       expect.stringContaining("Jamie Fox"),
     ]);
+  });
+
+  it("puts a check beside the place of an entrant above the cut line", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const saltRow = within(standingsSection()).getByRole("row", { name: /salt & sand/i });
+    expect(
+      within(saltRow).getByRole("img", { name: /above the cut.*advance to fittest of the coast/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("leaves the check off an entrant below the cut line or still awaiting scores", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const holdRow = within(standingsSection()).getByRole("row", { name: /hold the line/i });
+    const jamieRow = within(standingsSection()).getByRole("row", { name: /jamie fox/i });
+    expect(within(holdRow).queryByRole("img", { name: /above the cut/i })).not.toBeInTheDocument();
+    expect(within(jamieRow).queryByRole("img", { name: /above the cut/i })).not.toBeInTheDocument();
+  });
+
+  it("names the highest line cleared when a division has more than one", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const batteryRow = within(standingsSection()).getByRole("row", { name: /battery brothers/i });
+    expect(
+      within(batteryRow).getByRole("img", { name: /above the cut.*advance to rx division/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("puts the same check beside the place on a roster card", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(within(roster()).getByText("Salt & Sand")).toBeInTheDocument());
+    expect(within(roster()).getAllByRole("img", { name: /above the cut/i })).toHaveLength(2);
   });
 
   it("shows the rank on every workout in the standings", async () => {

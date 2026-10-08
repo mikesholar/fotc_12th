@@ -1,4 +1,4 @@
-import type { Individual, Standing, Team } from "../types/schedule";
+import type { CutLine, Individual, Standing, Team } from "../types/schedule";
 
 export type RankedEntrant = Pick<Team | Individual, "id" | "name" | "division" | "color"> & {
   readonly athletes?: readonly string[];
@@ -32,6 +32,12 @@ export const describePlace = (standing: Standing | undefined): string | undefine
   if (standing === undefined) return undefined;
   if (standing.place === undefined) return "Awaiting scores";
   return `${ordinal(standing.place)} of ${standing.fieldSize}`;
+};
+
+export const cutLineCleared = (standing: Standing | undefined): CutLine | undefined => {
+  const place = standing?.place;
+  if (standing === undefined || place === undefined) return undefined;
+  return [...standing.cutLines].sort((a, b) => a.place - b.place).find((line) => place <= line.place);
 };
 
 const shareOfField = (standing: Standing | undefined): number =>

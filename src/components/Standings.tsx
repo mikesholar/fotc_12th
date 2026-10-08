@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CutCheck } from "./CutCheck";
 import {
   describePlace,
   formatUpdatedAt,
@@ -90,7 +91,10 @@ export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => 
                     <span className="standings__name">{entrant.name}</span>
                     <span className="standings__div">{entrant.division}</span>
                   </td>
-                  <td className="standings__place">{describePlace(entrant.standing)}</td>
+                  <td className="standings__place">
+                    {describePlace(entrant.standing)}
+                    <CutCheck standing={entrant.standing} />
+                  </td>
                   <td>{entrant.standing?.points ?? "—"}</td>
                   {workoutNames.map((name) => (
                     <WorkoutCell key={name} entrant={entrant} workoutName={name} />
