@@ -59,18 +59,21 @@ code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   color: var(--cyan);
 }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 .wrap {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 var(--pad);
-}
-.tex {
-  background-image: repeating-linear-gradient(
-      115deg,
-      transparent 0 22px,
-      rgba(255, 255, 255, 0.022) 22px 23px
-    ),
-    repeating-linear-gradient(65deg, transparent 0 30px, rgba(255, 255, 255, 0.018) 30px 31px);
 }
 
 .btn {
@@ -313,18 +316,6 @@ code {
   }
 }
 
-/* hero */
-.hero {
-  padding: 54px 0 44px;
-  border-bottom: 1px solid var(--line-soft);
-  position: relative;
-  overflow: hidden;
-}
-@media (min-width: 900px) {
-  .hero {
-    padding: 88px 0 62px;
-  }
-}
 .eyebrow {
   font-size: 10.5px;
   font-weight: 700;
@@ -342,18 +333,6 @@ code {
     font-size: 11.5px;
     letter-spacing: 0.26em;
   }
-}
-.dot {
-  color: var(--muted);
-  margin: 0 6px;
-}
-.hero h1 {
-  font-size: clamp(40px, 11vw, 90px);
-  max-width: 15ch;
-}
-.hero h1 em {
-  font-style: normal;
-  color: var(--coral);
 }
 /* sections */
 .section {

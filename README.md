@@ -28,8 +28,8 @@ workout.
 
 `npm run standings` reads the leaderboard and writes `public/data/standings.json`
 (gitignored). The deploy workflow runs it before every build, and a cron re-deploys
-**every 30 minutes during October and November**, so places lag the leaderboard by at
-most about half an hour. Trigger the workflow by hand from the Actions tab for an
+**hourly at :10 past during October and November**, so places lag the leaderboard by at
+most about an hour. GitHub often starts scheduled runs a few minutes late. Trigger the workflow by hand from the Actions tab for an
 immediate refresh.
 
 The browser cannot read Competition Corner directly — its API sends no CORS headers —
@@ -78,7 +78,7 @@ A tied place like "57T" counts as 57th, so it gets the check.
 |---|---|
 | `kind` | `release` (cyan) · `due` (coral) · `comp` (white) · `milestone` (grey) |
 | `start` | ISO 8601 **with offset**. Eastern is `-04:00` in October, `-05:00` in January |
-| `phase` | `qualifier` or `championship` — drives the hero stat row |
+| `phase` | `qualifier` or `championship` |
 | `entrants` | `"all"` for gym-wide, or an array of entrant ids from `standings.json`, like `["cc-1520726"]` |
 | `end`, `week`, `location`, `notes`, `link` | All optional |
 

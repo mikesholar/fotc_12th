@@ -6,7 +6,6 @@ import { resolveViewerTimeZone } from "./domain/format-event-time";
 import { findNextEvent } from "./domain/next-event";
 import { ErrorCard } from "./components/ErrorCard";
 import { Header } from "./components/Header";
-import { Hero } from "./components/Hero";
 import { NextUpCard } from "./components/NextUpCard";
 import { QuickLinks } from "./components/QuickLinks";
 import { Roster } from "./components/Roster";
@@ -115,7 +114,7 @@ const ScheduleView = ({
 
   return (
     <>
-      <Hero schedule={schedule} />
+      <h1 className="visually-hidden">12th State @ FOTC</h1>
       <EntrantFilter
         bar={buildFilterBar(schedule, selectedEntrant)}
         selected={selectedEntrant}

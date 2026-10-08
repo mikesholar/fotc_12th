@@ -122,7 +122,7 @@ afterEach(() => {
 });
 
 describe("Road to Charleston", () => {
-  it("headlines the page as 12th State @ FOTC", async () => {
+  it("still names the page 12th State @ FOTC for screen readers", async () => {
     serve(scheduleOf());
 
     await renderApp();
@@ -131,16 +131,14 @@ describe("Road to Charleston", () => {
     expect(headline).toHaveTextContent("12th State @ FOTC");
   });
 
-  it("keeps the hero to the headline, without the intro, buttons or stat row", async () => {
+  it("has no hero banner, so the page opens on the filter and standings", async () => {
     serve(scheduleOf());
 
     await renderApp();
 
     await screen.findByRole("heading", { level: 1 });
-    expect(screen.queryByText(/every drop, every deadline/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /see the schedule/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /meet the teams/i })).not.toBeInTheDocument();
-    expect(screen.queryByText("Championship")).not.toBeInTheDocument();
+    expect(screen.queryByText(/2027 season/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("visually-hidden");
   });
 
   it("puts the competition's own links at the very top", async () => {
