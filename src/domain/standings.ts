@@ -5,6 +5,8 @@ export type RankedEntrant = Pick<Team | Individual, "id" | "name" | "division" |
   readonly standing?: Standing;
 };
 
+export const rosterCardId = (entrantId: string): string => `entrant-${entrantId}`;
+
 const normalise = (value: string): string => value.trim().toLowerCase();
 
 export const matchesSearch = (entrant: RankedEntrant, query: string): boolean => {

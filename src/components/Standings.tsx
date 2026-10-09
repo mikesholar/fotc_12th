@@ -6,6 +6,7 @@ import {
   matchesSearch,
   ordinal,
   rankByStanding,
+  rosterCardId,
   workoutNamesIn,
   type RankedEntrant,
 } from "../domain/standings";
@@ -88,7 +89,9 @@ export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => 
               {ranked.map((entrant) => (
                 <tr key={entrant.id} aria-label={entrant.name}>
                   <td style={{ ["--tc" as string]: entrant.color }}>
-                    <span className="standings__name">{entrant.name}</span>
+                    <a className="standings__name" href={`#${rosterCardId(entrant.id)}`}>
+                      {entrant.name}
+                    </a>
                     <span className="standings__div">{entrant.division}</span>
                   </td>
                   <td className="standings__place">

@@ -422,6 +422,32 @@ describe("Road to Charleston", () => {
     expect(within(roster()).getAllByRole("img", { name: /above the cut/i })).toHaveLength(2);
   });
 
+  it("links a team's name in the standings to its roster card, which lists the athletes", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const link = within(standingsSection()).getByRole("link", { name: "Salt & Sand" });
+    const card = document.getElementById(link.getAttribute("href")?.replace(/^#/, "") ?? "");
+    expect(card).not.toBeNull();
+    expect(roster()).toContainElement(card);
+    expect(card).toHaveTextContent("Avery Bowen");
+    expect(card).toHaveTextContent("Sam Delaney");
+  });
+
+  it("links an individual's name in the standings to their roster card", async () => {
+    serveRanked();
+
+    await renderApp();
+
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const link = within(standingsSection()).getByRole("link", { name: "Jamie Fox" });
+    const card = document.getElementById(link.getAttribute("href")?.replace(/^#/, "") ?? "");
+    expect(roster()).toContainElement(card);
+    expect(card).toHaveTextContent("Jamie Fox");
+  });
+
   it("shows the rank on every workout in the standings", async () => {
     serveRanked();
 

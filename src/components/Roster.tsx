@@ -1,4 +1,4 @@
-import { describePlace } from "../domain/standings";
+import { describePlace, rosterCardId } from "../domain/standings";
 import { CutCheck } from "./CutCheck";
 import type { Individual, Standing, Team } from "../types/schedule";
 
@@ -60,7 +60,12 @@ export const Roster = ({ teams, individuals }: RosterProps) => (
     {teams.length > 0 && <h3 className="roster__label">Teams</h3>}
     <div className="teamgrid">
       {teams.map((team) => (
-        <div className="teamcard" key={team.id} style={{ ["--tc" as string]: team.color }}>
+        <div
+          className="teamcard"
+          key={team.id}
+          id={rosterCardId(team.id)}
+          style={{ ["--tc" as string]: team.color }}
+        >
           <DivisionLine division={team.division} />
           <h4>{team.name}</h4>
           <ul>
@@ -87,6 +92,7 @@ export const Roster = ({ teams, individuals }: RosterProps) => (
             <div
               className="teamcard teamcard--solo"
               key={individual.id}
+              id={rosterCardId(individual.id)}
               style={{ ["--tc" as string]: individual.color }}
             >
               <DivisionLine division={individual.division} />

@@ -57,6 +57,9 @@ beside their place, in the standings and on their roster card; hover it to see w
 Some PRO/RX divisions have two lines (PRO and RX) — the check names the higher one cleared.
 A tied place like "57T" counts as 57th, so it gets the check.
 
+Every name in the standings table links to that entrant's roster card, so clicking a team
+jumps down to the athletes on it.
+
 ### Adding an event
 
 ```json

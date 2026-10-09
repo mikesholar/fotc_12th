@@ -792,6 +792,7 @@ code {
   }
 }
 .teamcard {
+  scroll-margin-top: calc(var(--hdr-h) + var(--filters-h) + 16px);
   background: var(--surface);
   border: 1px solid var(--line-soft);
   padding: 22px;
@@ -997,6 +998,13 @@ code {
   display: block;
   font-weight: 700;
   color: var(--text);
+  text-decoration: none;
+}
+.standings__name:hover,
+.standings__name:focus-visible {
+  color: var(--tc, var(--coral));
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .standings__div {
   display: block;
@@ -1057,4 +1065,21 @@ code {
 .chip--parent {
   border-color: #fff;
   color: #fff;
+}
+
+.teamcard:target {
+  animation: card-arrive 1.6s ease-out;
+}
+@keyframes card-arrive {
+  0%,
+  40% {
+    border-color: var(--tc, var(--coral));
+    box-shadow: 0 0 0 2px var(--tc, var(--coral));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .teamcard:target {
+    animation: none;
+    border-color: var(--tc, var(--coral));
+  }
 }
