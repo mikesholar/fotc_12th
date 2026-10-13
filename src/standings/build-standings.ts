@@ -66,13 +66,19 @@ const readCutLines = (raw: unknown): readonly CutLine[] =>
         .sort((a, b) => a.place - b.place)
     : [];
 
+const positive = (value: unknown): number | undefined =>
+  typeof value === "number" && Number.isInteger(value) && value > 0 ? value : undefined;
+
+const readRank = (score: Unknown): number | undefined =>
+  leadingNumber(score["rank"]) ?? positive(score["rankInnerValue"]);
+
 const readWorkoutStanding = (
   scores: unknown,
   workout: LeaderboardWorkout,
   place: number | undefined,
 ): WorkoutStanding => {
   const score = isObject(scores) ? scores[workout.key] : undefined;
-  const rank = isObject(score) ? leadingNumber(score["rank"]) : undefined;
+  const rank = isObject(score) ? readRank(score) : undefined;
   const result = isObject(score) ? text(score["res"]) : "";
   const isRevealed = place !== undefined && rank !== undefined && result !== "-";
   return {

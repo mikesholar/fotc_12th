@@ -160,6 +160,30 @@ describe("Reading places from the leaderboard", () => {
     ]);
   });
 
+  it("reads a workout rank Competition Corner sends only as its inner rank value", () => {
+    const standings = build([
+      getMockRawDivisionTab({
+        athletes: [
+          getMockRawLeaderboardTeam({
+            place: "54",
+            workoutScores: {
+              workout_132104: getMockRawWorkoutScore({
+                points: "54",
+                rank: "",
+                rankInnerValue: 54,
+                res: "998",
+              }),
+            },
+          }),
+        ],
+      }),
+    ]);
+
+    expect(standings.teams[0]?.standing?.workouts).toEqual([
+      { name: "Workout 1", rank: 54, result: "998" },
+    ]);
+  });
+
   it("leaves a workout unranked until its score is revealed", () => {
     const standings = build([getMockRawDivisionTab()]);
 

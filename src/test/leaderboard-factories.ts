@@ -12,7 +12,9 @@ export const getMockRawWorkoutScore = (overrides?: Json): Json => ({
   workoutId: 132104,
   points: "",
   rank: "",
+  rankInnerValue: 0,
   res: "-",
+  hasHiddenResult: true,
   ...overrides,
 });
 
