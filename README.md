@@ -57,8 +57,10 @@ beside their place, in the standings and on their roster card; hover it to see w
 Some PRO/RX divisions have two lines (PRO and RX) — the check names the higher one cleared.
 A tied place like "57T" counts as 57th, so it gets the check.
 
-Every name in the standings table links to that entrant's roster card, so clicking a team
-jumps down to the athletes on it.
+Each team in the standings table has an arrow that opens a row per athlete with their own
+result on every workout (the team's place and points stay on the team row). Searching for an
+athlete opens their team automatically. Teammates' results stay hidden until the team's score
+for that workout is revealed.
 
 ### Adding an event
 

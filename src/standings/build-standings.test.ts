@@ -184,6 +184,56 @@ describe("Reading places from the leaderboard", () => {
     ]);
   });
 
+  it("records each teammate's own result on every revealed workout", () => {
+    const revealed = (res: string) =>
+      getMockRawWorkoutScore({ res, hasHiddenResult: false });
+    const standings = build([
+      getMockRawDivisionTab({
+        athletes: [
+          getMockRawLeaderboardTeam({
+            place: "54",
+            workoutScores: {
+              workout_132104: getMockRawWorkoutScore({ rankInnerValue: 54, res: "998" }),
+            },
+            teammates: [
+              { athleteName: "Mike Sholar", workoutScores: { workout_132104: revealed("508") } },
+              { athleteName: "Caroline Ortiz-Deaton", workoutScores: { workout_132104: revealed("490") } },
+            ],
+          }),
+        ],
+      }),
+    ]);
+
+    expect(standings.teams[0]?.standing?.athleteResults).toEqual([
+      { name: "Mike Sholar", workouts: [{ name: "Workout 1", result: "508" }] },
+      { name: "Caroline Ortiz-Deaton", workouts: [{ name: "Workout 1", result: "490" }] },
+    ]);
+  });
+
+  it("keeps teammates' results hidden until the team's score is revealed", () => {
+    const standings = build([
+      getMockRawDivisionTab({
+        athletes: [
+          getMockRawLeaderboardTeam({
+            teammates: [
+              { athleteName: "Mike Sholar", workoutScores: { workout_132104: getMockRawWorkoutScore() } },
+            ],
+          }),
+        ],
+      }),
+    ]);
+
+    expect(standings.teams[0]?.standing?.athleteResults).toEqual([
+      { name: "Mike Sholar", workouts: [{ name: "Workout 1", result: undefined }] },
+    ]);
+  });
+
+  it("has no per-athlete results for an individual", () => {
+    const standings = build([getMockRawIndividualTab()]);
+
+    expect(standings.individuals[0]?.standing?.athleteResults).toEqual([]);
+  });
+
   it("leaves a workout unranked until its score is revealed", () => {
     const standings = build([getMockRawDivisionTab()]);
 

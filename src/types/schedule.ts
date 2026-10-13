@@ -15,12 +15,23 @@ export type CutLine = {
   readonly label: string;
 };
 
+export type AthleteWorkoutResult = {
+  readonly name: string;
+  readonly result?: string;
+};
+
+export type AthleteResult = {
+  readonly name: string;
+  readonly workouts: readonly AthleteWorkoutResult[];
+};
+
 export type Standing = {
   readonly place?: number;
   readonly fieldSize: number;
   readonly points?: number;
   readonly workouts: readonly WorkoutStanding[];
   readonly cutLines: readonly CutLine[];
+  readonly athleteResults: readonly AthleteResult[];
 };
 
 export type Team = {

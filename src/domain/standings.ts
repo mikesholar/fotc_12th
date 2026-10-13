@@ -5,16 +5,20 @@ export type RankedEntrant = Pick<Team | Individual, "id" | "name" | "division" |
   readonly standing?: Standing;
 };
 
-export const rosterCardId = (entrantId: string): string => `entrant-${entrantId}`;
-
 const normalise = (value: string): string => value.trim().toLowerCase();
+
+const nameMatches = (name: string, needle: string): boolean => normalise(name).includes(needle);
 
 export const matchesSearch = (entrant: RankedEntrant, query: string): boolean => {
   const needle = normalise(query);
   if (needle === "") return true;
-  return [entrant.name, ...(entrant.athletes ?? [])].some((name) =>
-    normalise(name).includes(needle),
-  );
+  return [entrant.name, ...(entrant.athletes ?? [])].some((name) => nameMatches(name, needle));
+};
+
+export const matchesOnlyAnAthlete = (entrant: RankedEntrant, query: string): boolean => {
+  const needle = normalise(query);
+  if (needle === "" || nameMatches(entrant.name, needle)) return false;
+  return (entrant.athletes ?? []).some((name) => nameMatches(name, needle));
 };
 
 const ORDINAL_SUFFIXES: Record<Intl.LDMLPluralRule, string> = {

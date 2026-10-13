@@ -80,7 +80,13 @@ const rankedSchedule = (): Record<string, unknown> =>
         name: "Salt & Sand",
         division: "Team Novice Co-Ed",
         athletes: ["Avery Bowen", "Sam Delaney"],
-        standing: standingOf(3, 60, 3),
+        standing: {
+          ...standingOf(3, 60, 3),
+          athleteResults: [
+            { name: "Avery Bowen", workouts: [{ name: "Workout 1", result: "110" }] },
+            { name: "Sam Delaney", workouts: [{ name: "Workout 1", result: "102" }] },
+          ],
+        },
       }),
       getMockRawTeam({
         id: "battery-brothers",
@@ -422,30 +428,60 @@ describe("Road to Charleston", () => {
     expect(within(roster()).getAllByRole("img", { name: /above the cut/i })).toHaveLength(2);
   });
 
-  it("links a team's name in the standings to its roster card, which lists the athletes", async () => {
+  it("expands a team's row to show each athlete's own score on every workout", async () => {
     serveRanked();
-
     await renderApp();
-
     await waitFor(() => expect(standingsSection()).toBeInTheDocument());
-    const link = within(standingsSection()).getByRole("link", { name: "Salt & Sand" });
-    const card = document.getElementById(link.getAttribute("href")?.replace(/^#/, "") ?? "");
-    expect(card).not.toBeNull();
-    expect(roster()).toContainElement(card);
-    expect(card).toHaveTextContent("Avery Bowen");
-    expect(card).toHaveTextContent("Sam Delaney");
+    const toggle = within(standingsSection()).getByRole("button", {
+      name: /show athletes for salt & sand/i,
+    });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(standingsSection()).queryByRole("row", { name: "Avery Bowen" })).not.toBeInTheDocument();
+
+    await userEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const avery = within(standingsSection()).getByRole("row", { name: "Avery Bowen" });
+    expect(within(avery).getByText("110")).toBeInTheDocument();
+    const sam = within(standingsSection()).getByRole("row", { name: "Sam Delaney" });
+    expect(within(sam).getByText("102")).toBeInTheDocument();
   });
 
-  it("links an individual's name in the standings to their roster card", async () => {
+  it("collapses a team's athletes again with the same arrow", async () => {
     serveRanked();
-
     await renderApp();
-
     await waitFor(() => expect(standingsSection()).toBeInTheDocument());
-    const link = within(standingsSection()).getByRole("link", { name: "Jamie Fox" });
-    const card = document.getElementById(link.getAttribute("href")?.replace(/^#/, "") ?? "");
-    expect(roster()).toContainElement(card);
-    expect(card).toHaveTextContent("Jamie Fox");
+    const toggle = within(standingsSection()).getByRole("button", {
+      name: /show athletes for salt & sand/i,
+    });
+
+    await userEvent.click(toggle);
+    await userEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(standingsSection()).queryByRole("row", { name: "Avery Bowen" })).not.toBeInTheDocument();
+  });
+
+  it("gives individuals no arrow, since there is nobody to expand", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    const jamieRow = within(standingsSection()).getByRole("row", { name: /jamie fox/i });
+    expect(within(jamieRow).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("opens a team's athletes when the search matches one of them", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.type(
+      within(standingsSection()).getByRole("searchbox", { name: /search/i }),
+      "avery",
+    );
+
+    expect(within(standingsSection()).getByRole("row", { name: "Avery Bowen" })).toBeInTheDocument();
   });
 
   it("shows the rank on every workout in the standings", async () => {

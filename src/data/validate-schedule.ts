@@ -9,6 +9,8 @@ import {
   type Schedule,
   type ScheduleEvent,
   type CutLine,
+  type AthleteResult,
+  type AthleteWorkoutResult,
   type Standing,
   type Team,
   type WorkoutStanding,
@@ -107,6 +109,52 @@ const readCutLines = (source: Unknown, where: string, errors: string[]): readonl
   return raw.map((line, i) => readCutLine(line, `${where}.cutLines[${i}]`, errors));
 };
 
+const readAthleteWorkoutResult = (
+  raw: unknown,
+  where: string,
+  errors: string[],
+): AthleteWorkoutResult => {
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return { name: "" };
+  }
+  return {
+    name: readString(raw, "name", where, errors),
+    result: readOptionalString(raw, "result", where, errors),
+  };
+};
+
+const readAthleteResult = (raw: unknown, where: string, errors: string[]): AthleteResult => {
+  if (!isObject(raw)) {
+    errors.push(`${where}: must be an object`);
+    return { name: "", workouts: [] };
+  }
+  const workoutsRaw = raw["workouts"];
+  if (!Array.isArray(workoutsRaw)) errors.push(`${where}: "workouts" must be an array`);
+  return {
+    name: readString(raw, "name", where, errors),
+    workouts: Array.isArray(workoutsRaw)
+      ? workoutsRaw.map((workout, i) =>
+          readAthleteWorkoutResult(workout, `${where}.workouts[${i}]`, errors),
+        )
+      : [],
+  };
+};
+
+const readAthleteResults = (
+  source: Unknown,
+  where: string,
+  errors: string[],
+): readonly AthleteResult[] => {
+  const raw = source["athleteResults"];
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) {
+    errors.push(`${where}: "athleteResults" must be an array when present`);
+    return [];
+  }
+  return raw.map((athlete, i) => readAthleteResult(athlete, `${where}.athleteResults[${i}]`, errors));
+};
+
 const readStanding = (source: Unknown, owner: string, errors: string[]): Standing | undefined => {
   const raw = source["standing"];
   if (raw === undefined) return undefined;
@@ -131,6 +179,7 @@ const readStanding = (source: Unknown, owner: string, errors: string[]): Standin
     points: readOptionalCount(raw, "points", where, errors),
     workouts,
     cutLines: readCutLines(raw, where, errors),
+    athleteResults: readAthleteResults(raw, where, errors),
   };
 };
 

@@ -1,4 +1,12 @@
-import type { CutLine, Individual, Result, Standing, Team, WorkoutStanding } from "../types/schedule";
+import type {
+  AthleteResult,
+  CutLine,
+  Individual,
+  Result,
+  Standing,
+  Team,
+  WorkoutStanding,
+} from "../types/schedule";
 
 export type StandingsFile = {
   readonly updatedAt: string;
@@ -88,6 +96,31 @@ const readWorkoutStanding = (
   };
 };
 
+const shownResult = (scores: unknown, workout: LeaderboardWorkout): string | undefined => {
+  const score = isObject(scores) ? scores[workout.key] : undefined;
+  const result = isObject(score) ? text(score["res"]) : "";
+  return result === "" || result === "-" ? undefined : result;
+};
+
+const athleteResultsOf = (
+  athlete: Unknown,
+  workouts: readonly LeaderboardWorkout[],
+  teamWorkouts: readonly WorkoutStanding[],
+): readonly AthleteResult[] => {
+  const teammates = athlete["teammates"];
+  if (!Array.isArray(teammates)) return [];
+  return teammates.filter(isObject).map((mate) => ({
+    name: text(mate["athleteName"]),
+    workouts: workouts.map((workout, i) => ({
+      name: workout.name,
+      result:
+        teamWorkouts[i]?.rank === undefined
+          ? undefined
+          : shownResult(mate["workoutScores"], workout),
+    })),
+  }));
+};
+
 const athletesOf = (athlete: Unknown): readonly string[] => {
   const teammates = athlete["teammates"];
   if (Array.isArray(teammates) && teammates.length > 0) {
@@ -128,6 +161,9 @@ const readTab = (
     .filter((athlete) => isOurs(athlete, include))
     .map((athlete) => {
       const place = leadingNumber(athlete["place"]);
+      const teamWorkouts = workouts.map((workout) =>
+        readWorkoutStanding(athlete["workoutScores"], workout, place),
+      );
       return {
         id: `cc-${text(athlete["ptcpID"])}`,
         name: text(athlete["name"]),
@@ -138,10 +174,9 @@ const readTab = (
           place,
           fieldSize: athletes.length,
           points: place === undefined ? undefined : leadingNumber(athlete["totalPoints"]),
-          workouts: workouts.map((workout) =>
-            readWorkoutStanding(athlete["workoutScores"], workout, place),
-          ),
+          workouts: teamWorkouts,
           cutLines,
+          athleteResults: athleteResultsOf(athlete, workouts, teamWorkouts),
         },
       };
     });

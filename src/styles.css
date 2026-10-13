@@ -792,7 +792,6 @@ code {
   }
 }
 .teamcard {
-  scroll-margin-top: calc(var(--hdr-h) + var(--filters-h) + 16px);
   background: var(--surface);
   border: 1px solid var(--line-soft);
   padding: 22px;
@@ -995,16 +994,44 @@ code {
   min-width: 180px;
 }
 .standings__name {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   color: var(--text);
-  text-decoration: none;
 }
-.standings__name:hover,
-.standings__name:focus-visible {
-  color: var(--tc, var(--coral));
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.standings__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: -4px 0;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted-2);
+  cursor: pointer;
+}
+.standings__toggle:hover,
+.standings__toggle:focus-visible {
+  border-color: var(--tc, var(--coral));
+  color: var(--text);
+  outline: none;
+}
+.standings__toggle svg {
+  transition: transform 0.15s ease;
+}
+.standings__toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+.standings__athlete td {
+  background: var(--surface-2);
+  color: var(--muted-2);
+  font-size: 13.5px;
+}
+.standings__athlete td:first-child {
+  padding-left: 30px;
 }
 .standings__div {
   display: block;
@@ -1065,21 +1092,4 @@ code {
 .chip--parent {
   border-color: #fff;
   color: #fff;
-}
-
-.teamcard:target {
-  animation: card-arrive 1.6s ease-out;
-}
-@keyframes card-arrive {
-  0%,
-  40% {
-    border-color: var(--tc, var(--coral));
-    box-shadow: 0 0 0 2px var(--tc, var(--coral));
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .teamcard:target {
-    animation: none;
-    border-color: var(--tc, var(--coral));
-  }
 }

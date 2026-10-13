@@ -183,9 +183,10 @@ describe("Leaderboard standings on the roster", () => {
     points: 12,
     workouts: [{ name: "Workout 1", rank: 3, result: "212 reps" }],
     cutLines: [{ place: 19, label: "Advance to Fittest of the Coast" }],
+    athleteResults: [{ name: "Jordan Reese", workouts: [{ name: "Workout 1", result: "108" }] }],
   };
 
-  it("keeps each entrant's place, workout ranks and the division's cut lines", () => {
+  it("keeps each entrant's place, workout ranks, cut lines and athletes' own results", () => {
     const result = validateSchedule(
       getMockRawSchedule({
         teams: [getMockRawTeam({ standing })],
@@ -218,6 +219,32 @@ describe("Leaderboard standings on the roster", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.value.teams[0]?.standing?.cutLines).toEqual([]);
+  });
+
+  it("treats a standing without athletes' results as having none", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({
+        teams: [getMockRawTeam({ standing: { place: 3, fieldSize: 42, workouts: [] } })],
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.teams[0]?.standing?.athleteResults).toEqual([]);
+  });
+
+  it("rejects an athlete's result without a name", () => {
+    const result = validateSchedule(
+      getMockRawSchedule({
+        teams: [
+          getMockRawTeam({ standing: { ...standing, athleteResults: [{ workouts: [] }] } }),
+        ],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.join(" ")).toMatch(/teams\[0\]\.standing\.athleteResults\[0\].*name/);
   });
 
   it("rejects a cut line without a place", () => {
