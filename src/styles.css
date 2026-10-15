@@ -978,6 +978,44 @@ code {
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
+.standings__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.standings__sort::after {
+  content: "↕" / "";
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.standings__sort:hover,
+.standings__sort:focus-visible,
+.standings th[aria-sort] .standings__sort {
+  color: var(--text);
+  outline: none;
+}
+.standings__sort:hover::after,
+.standings__sort:focus-visible::after {
+  opacity: 0.5;
+}
+.standings th[aria-sort="ascending"] .standings__sort::after {
+  content: "↑" / "";
+  opacity: 1;
+  color: var(--cyan);
+}
+.standings th[aria-sort="descending"] .standings__sort::after {
+  content: "↓" / "";
+  opacity: 1;
+  color: var(--cyan);
+}
 .standings td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--line-soft);

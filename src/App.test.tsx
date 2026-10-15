@@ -58,6 +58,12 @@ const board = (): HTMLElement => screen.getByRole("region", { name: /^schedule$/
 const roster = (): HTMLElement => screen.getByRole("region", { name: /who's competing/i });
 const standingsSection = (): HTMLElement => screen.getByRole("region", { name: /where we stand/i });
 
+const standingsOrder = (): readonly (string | undefined)[] =>
+  within(standingsSection())
+    .getAllByRole("row")
+    .slice(1)
+    .map((row) => row.getAttribute("aria-label") ?? undefined);
+
 const standingOf = (place: number | undefined, fieldSize: number, rank?: number) => ({
   place,
   fieldSize,
@@ -381,6 +387,76 @@ describe("Road to Charleston", () => {
       expect.stringContaining("Hold the Line"),
       expect.stringContaining("Jamie Fox"),
     ]);
+  });
+
+  it("sorts the standings by name when the Entrant heading is clicked", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.click(within(standingsSection()).getByRole("button", { name: "Entrant" }));
+
+    expect(standingsOrder()).toEqual(["Battery Brothers", "Hold the Line", "Jamie Fox", "Salt & Sand"]);
+  });
+
+  it("reverses the order when the same heading is clicked again", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const entrantHeading = within(standingsSection()).getByRole("button", { name: "Entrant" });
+
+    await userEvent.click(entrantHeading);
+    await userEvent.click(entrantHeading);
+
+    expect(standingsOrder()).toEqual(["Salt & Sand", "Jamie Fox", "Hold the Line", "Battery Brothers"]);
+  });
+
+  it("sorts by a workout's rank, keeping entrants without a score at the bottom", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const workoutHeading = within(standingsSection()).getByRole("button", { name: "Workout 1" });
+
+    await userEvent.click(workoutHeading);
+    await userEvent.click(workoutHeading);
+
+    expect(standingsOrder()).toEqual(["Hold the Line", "Battery Brothers", "Salt & Sand", "Jamie Fox"]);
+  });
+
+  it("reverses the default place order from the Place heading, awaiting scores still last", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.click(within(standingsSection()).getByRole("button", { name: "Place" }));
+
+    expect(standingsOrder()).toEqual(["Hold the Line", "Battery Brothers", "Salt & Sand", "Jamie Fox"]);
+  });
+
+  it("sorts by points, fewest first, from the Points heading", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+
+    await userEvent.click(within(standingsSection()).getByRole("button", { name: "Entrant" }));
+    await userEvent.click(within(standingsSection()).getByRole("button", { name: "Points" }));
+
+    expect(standingsOrder()).toEqual(["Salt & Sand", "Battery Brothers", "Hold the Line", "Jamie Fox"]);
+  });
+
+  it("tells assistive technology which column the standings are sorted by", async () => {
+    serveRanked();
+    await renderApp();
+    await waitFor(() => expect(standingsSection()).toBeInTheDocument());
+    const heading = (name: string): HTMLElement =>
+      within(standingsSection()).getByRole("columnheader", { name });
+    expect(heading("Place")).toHaveAttribute("aria-sort", "ascending");
+
+    await userEvent.click(within(standingsSection()).getByRole("button", { name: "Entrant" }));
+    await userEvent.click(within(standingsSection()).getByRole("button", { name: "Entrant" }));
+
+    expect(heading("Entrant")).toHaveAttribute("aria-sort", "descending");
+    expect(heading("Place")).not.toHaveAttribute("aria-sort");
   });
 
   it("puts a check beside the place of an entrant above the cut line", async () => {

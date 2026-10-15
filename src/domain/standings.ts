@@ -46,15 +46,56 @@ export const cutLineCleared = (standing: Standing | undefined): CutLine | undefi
   return [...standing.cutLines].sort((a, b) => a.place - b.place).find((line) => place <= line.place);
 };
 
-const shareOfField = (standing: Standing | undefined): number =>
-  standing?.place === undefined || standing.fieldSize === 0
-    ? Number.POSITIVE_INFINITY
-    : standing.place / standing.fieldSize;
+export type SortColumn = "place" | "entrant" | "points" | `workout:${string}`;
 
-export const rankByStanding = <T extends RankedEntrant>(entrants: readonly T[]): readonly T[] =>
-  [...entrants].sort(
-    (a, b) => shareOfField(a.standing) - shareOfField(b.standing) || a.name.localeCompare(b.name),
-  );
+export type SortDirection = "ascending" | "descending";
+
+export type StandingsSort = {
+  readonly column: SortColumn;
+  readonly direction: SortDirection;
+};
+
+export const workoutColumn = (workoutName: string): SortColumn => `workout:${workoutName}`;
+
+const shareOfField = (standing: Standing | undefined, place: number | undefined): number | undefined =>
+  standing === undefined || place === undefined || standing.fieldSize === 0
+    ? undefined
+    : place / standing.fieldSize;
+
+const workoutRank = (entrant: RankedEntrant, column: SortColumn): number | undefined =>
+  entrant.standing?.workouts.find((w) => workoutColumn(w.name) === column)?.rank;
+
+const sortValue = (entrant: RankedEntrant, column: SortColumn): number | string | undefined => {
+  if (column === "entrant") return entrant.name;
+  if (column === "place") return shareOfField(entrant.standing, entrant.standing?.place);
+  if (column === "points") return entrant.standing?.points;
+  return shareOfField(entrant.standing, workoutRank(entrant, column));
+};
+
+const compareValues = (a: number | string, b: number | string): number =>
+  typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b));
+
+const compareBy =
+  ({ column, direction }: StandingsSort) =>
+  (a: RankedEntrant, b: RankedEntrant): number => {
+    const valueA = sortValue(a, column);
+    const valueB = sortValue(b, column);
+    if (valueA === undefined || valueB === undefined) {
+      return Number(valueA === undefined) - Number(valueB === undefined) || a.name.localeCompare(b.name);
+    }
+    const sign = direction === "ascending" ? 1 : -1;
+    return sign * compareValues(valueA, valueB) || a.name.localeCompare(b.name);
+  };
+
+export const sortStandings = <T extends RankedEntrant>(
+  entrants: readonly T[],
+  sort: StandingsSort,
+): readonly T[] => [...entrants].sort(compareBy(sort));
+
+export const nextSort = (current: StandingsSort, column: SortColumn): StandingsSort =>
+  current.column === column && current.direction === "ascending"
+    ? { column, direction: "descending" }
+    : { column, direction: "ascending" };
 
 export const workoutNamesIn = (entrants: readonly RankedEntrant[]): readonly string[] => [
   ...new Set(entrants.flatMap((entrant) => entrant.standing?.workouts ?? []).map((w) => w.name)),

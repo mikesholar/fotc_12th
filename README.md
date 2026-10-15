@@ -57,6 +57,10 @@ beside their place, in the standings and on their roster card; hover it to see w
 Some PRO/RX divisions have two lines (PRO and RX) — the check names the higher one cleared.
 A tied place like "57T" counts as 57th, so it gets the check.
 
+Click any standings heading to sort by it: Entrant A–Z, or Place, Points and each workout
+best-first. Click it again to reverse. Workout columns rank by how far up the division the
+rank sits, like Place does. Entrants without a score stay at the bottom either way.
+
 Each team in the standings table has an arrow that opens a row per athlete with their own
 result on every workout (the team's place and points stay on the team row). Searching for an
 athlete opens their team automatically. Teammates' results stay hidden until the team's score

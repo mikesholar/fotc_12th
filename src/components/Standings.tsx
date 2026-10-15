@@ -6,9 +6,13 @@ import {
   matchesOnlyAnAthlete,
   matchesSearch,
   ordinal,
-  rankByStanding,
+  sortStandings,
   workoutNamesIn,
   type RankedEntrant,
+  nextSort,
+  workoutColumn,
+  type SortColumn,
+  type StandingsSort,
 } from "../domain/standings";
 import type { AthleteResult } from "../types/schedule";
 
@@ -67,16 +71,37 @@ const AthleteRow = ({
   </tr>
 );
 
+const SortableHeading = ({
+  label,
+  column,
+  sort,
+  onSort,
+}: {
+  readonly label: string;
+  readonly column: SortColumn;
+  readonly sort: StandingsSort;
+  readonly onSort: (column: SortColumn) => void;
+}) => (
+  <th scope="col" aria-sort={sort.column === column ? sort.direction : undefined}>
+    <button type="button" className="standings__sort" onClick={() => onSort(column)}>
+      {label}
+    </button>
+  </th>
+);
+
 const emptyMessage = (query: string): string =>
   query.trim() === "" ? "Nobody matches this filter." : `No one matches “${query.trim()}”.`;
 
 export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => {
   const [query, setQuery] = useState("");
   const [toggled, setToggled] = useState<Readonly<Record<string, boolean>>>({});
-  const ranked = rankByStanding(
+  const [sort, setSort] = useState<StandingsSort>({ column: "place", direction: "ascending" });
+  const ranked = sortStandings(
     entrants.filter((entrant) => entrant.standing !== undefined && matchesSearch(entrant, query)),
+    sort,
   );
   const workoutNames = workoutNamesIn(ranked);
+  const sortBy = (column: SortColumn): void => setSort((current) => nextSort(current, column));
   const isExpanded = (entrant: RankedEntrant): boolean =>
     toggled[entrant.id] ?? matchesOnlyAnAthlete(entrant, query);
   const toggle = (entrant: RankedEntrant): void =>
@@ -111,13 +136,17 @@ export const Standings = ({ entrants, updatedAt, timeZone }: StandingsProps) => 
           <table className="standings">
             <thead>
               <tr>
-                <th scope="col">Entrant</th>
-                <th scope="col">Place</th>
-                <th scope="col">Points</th>
+                <SortableHeading label="Entrant" column="entrant" sort={sort} onSort={sortBy} />
+                <SortableHeading label="Place" column="place" sort={sort} onSort={sortBy} />
+                <SortableHeading label="Points" column="points" sort={sort} onSort={sortBy} />
                 {workoutNames.map((name) => (
-                  <th scope="col" key={name}>
-                    {name}
-                  </th>
+                  <SortableHeading
+                    key={name}
+                    label={name}
+                    column={workoutColumn(name)}
+                    sort={sort}
+                    onSort={sortBy}
+                  />
                 ))}
               </tr>
             </thead>
